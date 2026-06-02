@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Kenjie · Rookie Coder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* Lightning Canvas */
+        #lightningCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+        }
+
+        /* Intro Animation Overlay */
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(2px);
+        }
+
+        .thunder-container {
+            text-align: center;
+        }
+
+        .thunder-icon {
+            font-size: 120px;
+            opacity: 0;
+            animation: thunderFlash 0.3s ease-in-out 3;
+            filter: drop-shadow(0 0 20px #00ff88);
+        }
+
+        @keyframes thunderFlash {
+            0% { opacity: 0; transform: scale(0.5); text-shadow: 0 0 0 #00ff88; }
+            20% { opacity: 1; transform: scale(1.2); text-shadow: 0 0 30px #00ff88; }
+            40% { opacity: 0.8; transform: scale(1); }
+            60% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        .intro-name {
+            font-size: 52px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-top: 30px;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .intro-sub {
+            font-size: 20px;
+            color: #00ff88;
+            margin-top: 15px;
+            opacity: 0;
+            letter-spacing: 2px;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,255,136,0.2);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #00ff88;
+        }
+
+        /* Sections */
+        section {
+            padding: 100px 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero-content h1 span {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0,255,136,0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #aaa;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .stat h3 {
+            font-size: 32px;
+            color: #00ff88;
+        }
+
+        .stat p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hero-image {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(0,255,136,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero-image .avatar-placeholder {
+            font-size: 80px;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: #111;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #222;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0,255,136,0.1);
+        }
+
+        .project-img {
+            height: 180px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+
+        .project-info {
+            padding: 20px;
+        }
+
+        .project-info h3 {
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+
+        .project-info p {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #00ff88;
+        }
+
+        .github-link {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .github-link span {
+            color: #00ff88;
+        }
+
+        .school-card {
+            background: linear-gradient(135deg, #0d1b0d, #0a0a0a);
+            border: 1px solid #00ff88;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .school-card h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .contact-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #111;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #222;
+        }
+
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .contact-form button {
+            width: 100%;
+            padding: 12px;
+            background: #00ff88;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .contact-form button:hover {
+            background: #00cc6a;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid #222;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .birthday {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 60px 24px;
+            }
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 40px;
+            }
+            .hero-stats {
+                justify-content: center;
+            }
+            .nav-links {
+                display: none;
+            }
+            .intro-name {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="lightningCanvas"></canvas>
+
+    <!-- Intro Animation with Thunder -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="thunder-container">
+            <div class="thunder-icon" id="thunderIcon">⚡</div>
+            <div class="intro-name" id="introName">KENJIE · ROOKIE CODER</div>
+            <div class="intro-sub" id="introSub">⚡ Full-Stack Developer · ICT 11 ⚡</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="logo">kenjie.dev</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#projects">Projects</a>
+            <a href="#school">School</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="badge">⚡ ROOKIE CODER ⚡</div>
+            <h1>Kenjie <span>Rookie Coder</span></h1>
+            <p>16 years old | Born October 8, 2010 | ICT 11 Student</p>
+            <p>Specializing in game codes, AI, websites, and creative digital experiences.</p>
+            <a href="#projects" class="btn">See My Work →</a>
+            <div class="hero-stats">
+                <div class="stat">
+                    <h3>3</h3>
+                    <p>Projects</p>
+                </div>
+                <div class="stat">
+                    <h3>ICT 11</h3>
+                    <p>Current Strand</p>
+                </div>
+                <div class="stat">
+                    <h3>2026</h3>
+                    <p>Graduating</p>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="avatar-placeholder">👨‍💻⚡</div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="section-title">My <span>Projects</span></h2>
+        <div class="projects-grid">
+            <!-- Project 1: F.R.I.D.A.Y - Fully Fledged AI -->
+            <div class="project-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
+                <div class="project-img">🧠</div>
+                <div class="project-info">
+                    <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
+                    <p>Complete AI assistant with natural language processing, smart responses, and interactive chatbot capabilities. Built with Python and NLP.</p>
+                    <div class="project-tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span><span class="tag">Chatbot</span></div>
+                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y</span></div>
+                </div>
+            </div>
+
+            <!-- Project 2: Acers Shop - E-commerce -->
+            <div class="project-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
+                <div class="project-img">🛒</div>
+                <div class="project-info">
+                    <h3>Acers Shop · E-commerce Store</h3>
+                    <p>Foam and plastic utensils store with cart system, WhatsApp checkout, and fully responsive design. Built with HTML/CSS/JS.</p>
+                    <div class="project-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
+                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/Acers-shop</span></div>
+                </div>
+            </div>
+
+            <!-- Project 3: kinx - Prank Site -->
+            <div class="project-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
+                <div class="project-img">🎭</div>
+                <div class="project-info">
+                    <h3>kinx · Prank Site</h3>
+                    <p>Romantic prank website with love.py script, music, and fake romantic interactions. Pure Python fun prank project.</p>
+                    <div class="project-tags"><span class="tag">Python</span><span class="tag">Prank</span><span class="tag">Multimedia</span></div>
+                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/kinx</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="school">
+        <h2 class="section-title">My <span>School</span></h2>
+        <div class="school-card">
+            <h3>🏫 Don Pablo Memorial Stand Alone Senior High School</h3>
+            <p>ICT 11 Student (Information and Communications Technology)</p>
+            <p>📍 <span class="birthday">🎂 Born: October 8, 2010 · 16 years old</span></p>
+            <p style="margin-top: 15px;">⚡ Currently learning: Web Development, AI, Python Programming, Game Design</p>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title">Let's <span>Connect</span></h2>
+        <div class="contact-form">
+            <input type="text" placeholder="Your Name" id="name">
+            <input type="email" placeholder="Email Address" id="email">
+            <textarea rows="4" placeholder="Message" id="message"></textarea>
+            <button onclick="sendMessage()">Send Message →</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 Kenjie "Rookie Coder" · Don Pablo Memorial SHS · ICT 11 ⚡</p>
+    </footer>
+
+    <script>
+        // ========== INTRO THUNDER + NAME REVEAL ==========
+        const thunderIcon = document.getElementById('thunderIcon');
+        const introName = document.getElementById('introName');
+        const introSub = document.getElementById('introSub');
+        const overlay = document.getElementById('introOverlay');
+
+        // Thunder flash sequence
+        let thunderCount = 0;
+        const thunderInterval = setInterval(() => {
+            thunderIcon.style.animation = 'none';
+            thunderIcon.offsetHeight; // force reflow
+            thunderIcon.style.animation = 'thunderFlash 0.3s ease-in-out';
+            
+            // Also trigger canvas lightning
+            triggerCanvasLightning();
+            
+            thunderCount++;
+            if (thunderCount >= 4) {
+                clearInterval(thunderInterval);
+                // After thunder, reveal name
+                setTimeout(() => {
+                    introName.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    introName.style.opacity = '1';
+                    introName.style.transform = 'scale(1)';
+                    
+                    setTimeout(() => {
+                        introSub.style.transition = 'opacity 0.5s ease';
+                        introSub.style.opacity = '1';
+                    }, 200);
+                    
+                    // Fade out overlay after name shown
+                    setTimeout(() => {
+                        overlay.style.transition = 'opacity 0.8s ease';
+                        overlay.style.opacity = '0';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 800);
+                    }, 1800);
+                }, 100);
+            }
+        }, 400);
+
+        // ========== LIGHTNING FOLLOWING MOUSE/TOUCH ==========
+        const canvas = document.getElementById('lightningCanvas');
+        const ctx = canvas.getContext('2d');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        let lightningActive = false;
+        let lightningPoints = [];
+        let lastTrigger = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function triggerCanvasLightning(x = mouseX, y = mouseY) {
+            lightningActive = true;
+            lightningPoints = [];
+            const startX = x;
+            const startY = y;
+            
+            let points = [{x: startX, y: startY}];
+            let currentX = startX;
+            let currentY = startY;
+            
+            for (let i = 0; i < 15; i++) {
+                let nextX = currentX + (Math.random() - 0.5) * 40;
+                let nextY = currentY + (Math.random() - 0.5) * 30 + 15;
+                nextX = Math.min(Math.max(nextX, 0), canvas.width);
+                nextY = Math.min(Math.max(nextY, 0), canvas.height);
+                points.push({x: nextX, y: nextY});
+                currentX = nextX;
+                currentY = nextY;
+                
+                if (Math.random() > 0.7 && i > 2) {
+                    let branchX = currentX + (Math.random() - 0.5) * 30;
+                    let branchY = currentY + (Math.random() - 0.5) * 25;
+                    branchX = Math.min(Math.max(branchX, 0), canvas.width);
+                    branchY = Math.min(Math.max(branchY, 0), canvas.height);
+                    lightningPoints.push([{x: currentX, y: currentY}, {x: branchX, y: branchY}]);
+                }
+            }
+            lightningPoints.unshift(points);
+            
+            setTimeout(() => { lightningActive = false; }, 150);
+            animateLightning();
+        }
+
+        function drawLightning() {
+            if (!lightningActive && lightningPoints.length === 0) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let branch of lightningPoints) {
+                if (Array.isArray(branch[0]) && branch[0].x !== undefined) {
+                    ctx.beginPath();
+                    ctx.moveTo(branch[0].x, branch[0].y);
+                    ctx.lineTo(branch[1].x, branch[1].y);
+                    ctx.strokeStyle = '#00ff88';
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#00ff88';
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(branch[0].x, branch[0].y);
+                    ctx.lineTo(branch[1].x, branch[1].y);
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                } else if (Array.isArray(branch)) {
+                    ctx.beginPath();
+                    ctx.moveTo(branch[0].x, branch[0].y);
+                    for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i].x, branch[i].y);
+                    ctx.strokeStyle = '#00ff88';
+                    ctx.lineWidth = 4;
+                    ctx.shadowBlur = 20;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(branch[0].x, branch[0].y);
+                    for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i].x, branch[i].y);
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        function animateLightning() {
+            drawLightning();
+            if (lightningActive) requestAnimationFrame(animateLightning);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            const now = Date.now();
+            if (now - lastTrigger > 300 && Math.random() > 0.85) {
+                lastTrigger = now;
+                triggerCanvasLightning();
+            }
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+                const now = Date.now();
+                if (now - lastTrigger > 300 && Math.random() > 0.8) {
+                    lastTrigger = now;
+                    triggerCanvasLightning();
+                }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            triggerCanvasLightning(e.clientX, e.clientY);
+        });
+
+        // ========== SMOOTH SCROLL ==========
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // ========== CONTACT ==========
+        function sendMessage() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            if (!name || !email || !message) {
+                alert('Please fill in all fields ⚡');
+                return;
+            }
+            alert(`Thanks ${name}! I'll get back to you soon. ⚡`);
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('message').value = '';
+        }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.project-card, .school-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = '0.5s';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
