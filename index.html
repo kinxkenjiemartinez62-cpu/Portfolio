@@ -19,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* Particle Canvas */
         #particleCanvas {
             position: fixed;
             top: 0;
@@ -31,7 +30,6 @@
             opacity: 0.35;
         }
 
-        /* Lightning Canvas */
         #lightningCanvas {
             position: fixed;
             top: 0;
@@ -42,7 +40,6 @@
             z-index: 9997;
         }
 
-        /* Intro Canvas */
         #introCanvas {
             position: fixed;
             top: 0;
@@ -53,7 +50,6 @@
             background: #010108;
         }
 
-        /* Main Site */
         .site-wrapper {
             position: relative;
             z-index: 1;
@@ -61,7 +57,6 @@
             background: transparent;
         }
 
-        /* Liquid Glass UI */
         .glass-card {
             background: rgba(15, 15, 30, 0.55);
             backdrop-filter: blur(12px);
@@ -76,7 +71,6 @@
             box-shadow: 0 8px 40px rgba(0, 255, 136, 0.1);
         }
 
-        /* Slow Strobe */
         @keyframes slowStrobe {
             0% { text-shadow: 0 0 4px #00ff88; }
             50% { text-shadow: 0 0 16px #00ff88; }
@@ -87,7 +81,6 @@
             animation: slowStrobe 3s ease-in-out infinite;
         }
 
-        /* Responsive Layout */
         .container {
             max-width: 1300px;
             margin: 0 auto;
@@ -308,32 +301,13 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-            .hero {
-                flex-direction: column;
-                text-align: center;
-                padding: 28px;
-            }
-            .hero-content h1 {
-                font-size: 38px;
-            }
-            .hero-stats {
-                justify-content: center;
-            }
-            .nav-links {
-                justify-content: center;
-                width: 100%;
-            }
-            nav {
-                justify-content: center;
-                text-align: center;
-            }
-            .logo {
-                width: 100%;
-                text-align: center;
-            }
+            .container { padding: 16px; }
+            .hero { flex-direction: column; text-align: center; padding: 28px; }
+            .hero-content h1 { font-size: 38px; }
+            .hero-stats { justify-content: center; }
+            .nav-links { justify-content: center; width: 100%; }
+            nav { justify-content: center; text-align: center; }
+            .logo { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -558,26 +532,25 @@
         document.addEventListener('click', (e) => triggerLightning(e.clientX, e.clientY));
         document.addEventListener('mousemove', (e) => { if (Math.random() > 0.96) triggerLightning(e.clientX, e.clientY); });
 
-        // ========== SOLAR SYSTEM INTRO (PLANETS ORBITING, THEN ALIGN) ==========
+        // ========== SOLAR SYSTEM WITH ACTUAL ALIGNMENT ==========
         const introCanvas = document.getElementById('introCanvas');
         const iCtx = introCanvas.getContext('2d');
         const siteWrapperDiv = document.getElementById('siteWrapper');
         let introActive = true;
-        let alignmentProgress = 0; // 0 to 1, increases over time
-        let planets = [];
+        let alignmentProgress = 0;
         let starsField = [];
-        let alignmentTriggered = false;
         let siteRevealed = false;
+        let animationFrameId = null;
 
-        const planetData = [
-            { name: 'Mercury', radius: 6, distance: 70, speed: 0.02, color: '#c2b280', angle: 0 },
-            { name: 'Venus',   radius: 8, distance: 100, speed: 0.012, color: '#e6b800', angle: 1.2 },
-            { name: 'Earth',   radius: 9, distance: 135, speed: 0.01, color: '#4da6ff', angle: 2.1 },
-            { name: 'Mars',    radius: 7, distance: 170, speed: 0.008, color: '#ff6600', angle: 3.0 },
-            { name: 'Jupiter', radius: 16, distance: 230, speed: 0.005, color: '#d4a373', angle: 4.2 },
-            { name: 'Saturn',  radius: 14, distance: 290, speed: 0.004, color: '#f4d03f', angle: 5.1, hasRing: true },
-            { name: 'Uranus',  radius: 11, distance: 350, speed: 0.003, color: '#b0e0e6', angle: 0.8 },
-            { name: 'Neptune', radius: 11, distance: 400, speed: 0.0025, color: '#4169e1', angle: 3.5 }
+        const planets = [
+            { name: 'Mercury', radius: 6, distance: 80, speed: 0.025, color: '#c2b280', angle: 0 },
+            { name: 'Venus',   radius: 8, distance: 115, speed: 0.018, color: '#e6b800', angle: 1.8 },
+            { name: 'Earth',   radius: 9, distance: 150, speed: 0.015, color: '#4da6ff', angle: 2.5 },
+            { name: 'Mars',    radius: 7, distance: 190, speed: 0.012, color: '#ff6600', angle: 3.2 },
+            { name: 'Jupiter', radius: 16, distance: 250, speed: 0.008, color: '#d4a373', angle: 4.0 },
+            { name: 'Saturn',  radius: 13, distance: 310, speed: 0.006, color: '#f4d03f', angle: 4.8, hasRing: true },
+            { name: 'Uranus',  radius: 11, distance: 370, speed: 0.005, color: '#b0e0e6', angle: 5.5 },
+            { name: 'Neptune', radius: 11, distance: 430, speed: 0.004, color: '#4169e1', angle: 6.2 }
         ];
 
         function resizeIntro() {
@@ -589,109 +562,142 @@
             }
         }
 
-        function drawSolarSystem() {
+        function drawIntro() {
             if (!introActive) return;
+            
             iCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
             
             // Starfield
-            iCtx.fillStyle = '#010108';
-            iCtx.fillRect(0, 0, introCanvas.width, introCanvas.height);
             for (let s of starsField) {
-                iCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.6 + 0.2})`;
+                iCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.5 + 0.3})`;
                 iCtx.beginPath();
                 iCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 iCtx.fill();
             }
             
-            const centerX = introCanvas.width / 2;
-            const centerY = introCanvas.height / 2;
+            const cx = introCanvas.width / 2;
+            const cy = introCanvas.height / 2;
             
             // Sun
-            iCtx.shadowBlur = 30;
+            iCtx.shadowBlur = 35;
             iCtx.shadowColor = '#ffaa33';
             iCtx.beginPath();
-            iCtx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+            iCtx.arc(cx, cy, 38, 0, Math.PI * 2);
             iCtx.fillStyle = '#ffcc44';
             iCtx.fill();
             iCtx.shadowBlur = 0;
             
-            // Update planet angles based on alignmentProgress
-            let targetAngleOffset = alignmentProgress * Math.PI * 2;
-            
-            for (let p of planetData) {
-                // Normal orbit until alignmentProgress reaches 1, then align
-                let angle;
-                if (alignmentProgress >= 0.99) {
-                    angle = 0; // aligned
-                } else {
-                    angle = p.angle + (alignmentProgress * targetAngleOffset);
-                }
-                let x = centerX + Math.cos(angle) * p.distance;
-                let y = centerY + Math.sin(angle) * p.distance;
-                
-                // Draw orbit line
+            // Orbit lines
+            for (let p of planets) {
                 iCtx.beginPath();
-                iCtx.ellipse(centerX, centerY, p.distance, p.distance, 0, 0, Math.PI * 2);
+                iCtx.ellipse(cx, cy, p.distance, p.distance, 0, 0, Math.PI * 2);
                 iCtx.strokeStyle = 'rgba(100,100,150,0.2)';
                 iCtx.stroke();
+            }
+            
+            // Update angles - gradually move all planets toward 0 degrees (right side)
+            // This creates the alignment effect: all planets move to the same angle
+            let aligned = false;
+            
+            for (let p of planets) {
+                // Calculate target angle (0 = right side, aligned)
+                let targetAngle = 0;
+                let diff = targetAngle - p.angle;
+                // Normalize diff to shortest direction
+                if (diff > Math.PI) diff -= Math.PI * 2;
+                if (diff < -Math.PI) diff += Math.PI * 2;
                 
-                // Planet
+                // Move angle toward target
+                let step = 0.02 * (1 - alignmentProgress * 0.5);
+                if (Math.abs(diff) < step) {
+                    p.angle = targetAngle;
+                } else {
+                    p.angle += diff > 0 ? step : -step;
+                }
+                
+                // Keep angle normalized
+                if (p.angle > Math.PI * 2) p.angle -= Math.PI * 2;
+                if (p.angle < 0) p.angle += Math.PI * 2;
+            }
+            
+            // Check if all planets are aligned (all angles very close to 0)
+            let allAligned = planets.every(p => Math.abs(p.angle) < 0.05 || Math.abs(p.angle - Math.PI * 2) < 0.05);
+            
+            // Draw planets
+            for (let p of planets) {
+                let x = cx + Math.cos(p.angle) * p.distance;
+                let y = cy + Math.sin(p.angle) * p.distance;
+                
                 iCtx.shadowBlur = 8;
                 iCtx.shadowColor = p.color;
                 iCtx.beginPath();
                 iCtx.arc(x, y, p.radius, 0, Math.PI * 2);
                 iCtx.fillStyle = p.color;
                 iCtx.fill();
+                
                 if (p.hasRing) {
                     iCtx.beginPath();
                     iCtx.ellipse(x, y, p.radius + 5, p.radius + 2, 0.3, 0, Math.PI * 2);
                     iCtx.fillStyle = 'rgba(200,180,100,0.5)';
                     iCtx.fill();
                 }
-                iCtx.shadowBlur = 0;
             }
+            iCtx.shadowBlur = 0;
             
-            // Increase alignment progress
-            if (alignmentProgress < 1 && !siteRevealed) {
-                alignmentProgress += 0.003;
+            // Update progress bar for visual feedback
+            if (!allAligned) {
+                // Calculate alignment percentage based on how close planets are to 0 angle
+                let totalDiff = 0;
+                for (let p of planets) {
+                    let diff = Math.abs(p.angle);
+                    if (diff > Math.PI) diff = Math.PI * 2 - diff;
+                    totalDiff += diff;
+                }
+                let maxDiff = planets.length * Math.PI;
+                let percent = Math.max(0, Math.min(100, Math.floor((1 - totalDiff / maxDiff) * 100)));
+                iCtx.font = '14px monospace';
+                iCtx.fillStyle = '#00ff88';
+                iCtx.shadowBlur = 0;
+                iCtx.fillText(`🌀 PLANETARY ALIGNMENT: ${percent}% 🌀`, cx - 130, cy - 60);
+            } else {
+                iCtx.font = 'bold 24px monospace';
+                iCtx.fillStyle = '#00ff88';
+                iCtx.shadowBlur = 10;
+                iCtx.fillText('✨ PLANETS ALIGNED ✨', cx - 100, cy - 60);
             }
             
             // When aligned, show name and reveal site
-            if (alignmentProgress >= 0.98 && !siteRevealed) {
+            if (allAligned && !siteRevealed) {
                 siteRevealed = true;
-                iCtx.font = 'bold 38px Inter';
+                iCtx.font = 'bold 42px Inter';
                 iCtx.fillStyle = '#00ff88';
                 iCtx.shadowBlur = 15;
-                iCtx.fillText("KENJIE", centerX - 100, centerY + 100);
-                iCtx.font = '22px Inter';
+                iCtx.fillText("KENJIE", cx - 100, cy + 100);
+                iCtx.font = '24px Inter';
                 iCtx.fillStyle = '#ddd';
-                iCtx.fillText("ROOKIE CODER", centerX - 100, centerY + 140);
+                iCtx.fillText("ROOKIE CODER", cx - 100, cy + 145);
                 iCtx.shadowBlur = 0;
                 
                 setTimeout(() => {
                     introActive = false;
-                    introCanvas.style.opacity = '0';
                     introCanvas.style.transition = 'opacity 1.2s ease';
+                    introCanvas.style.opacity = '0';
                     siteWrapperDiv.style.display = 'block';
                     setTimeout(() => {
                         introCanvas.style.display = 'none';
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
                     }, 1300);
                 }, 2000);
-            } else if (!siteRevealed) {
-                // Show "Aligning planets..." text
-                iCtx.font = '14px monospace';
-                iCtx.fillStyle = '#00ff88';
-                iCtx.fillText(`⚡ PLANETARY ALIGNMENT: ${Math.floor(alignmentProgress * 100)}% ⚡`, centerX - 120, centerY - 50);
             }
             
-            requestAnimationFrame(drawSolarSystem);
+            animationFrameId = requestAnimationFrame(drawIntro);
         }
 
         window.addEventListener('resize', () => { resizeIntro(); });
         resizeIntro();
-        drawSolarSystem();
+        drawIntro();
 
-        // smooth scroll for anchor links
+        // Smooth scroll for anchor links
         document.querySelectorAll('.nav-links a').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
