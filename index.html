@@ -2,815 +2,601 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Kenjie · Rookie Coder</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #0a0a0a;
             color: #ffffff;
-            line-height: 1.5;
-            scroll-behavior: smooth;
             overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100vh;
         }
 
-        /* Flying Particles Canvas (protons, atoms, electrons) */
-        #particleCanvas {
+        /* ========== INTRO: SPACESHIP TO MOON ========== */
+        #introCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 9995;
+            z-index: 10000;
+            background: #030318;
         }
 
-        /* Lightning Canvas */
-        #lightningCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9997;
+        /* Main Site (hidden until intro ends) */
+        .site-wrapper {
+            display: none;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
         }
 
-        /* Slow Strobe Effect on Green Elements */
-        @keyframes slowStrobe {
-            0% { text-shadow: 0 0 5px #00ff88, 0 0 10px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
-            50% { text-shadow: 0 0 20px #00ff88, 0 0 30px #00ff88; filter: drop-shadow(0 0 15px #00ff88); }
-            100% { text-shadow: 0 0 5px #00ff88, 0 0 10px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
+        /* Custom scrollbar */
+        .site-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+        .site-wrapper::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .site-wrapper::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 3px;
         }
 
-        .hero-content h1 span, .badge, .stat h3, .section-title span, 
-        .project-info h3, .tag, .github-link span, .school-card h3, .birthday {
-            animation: slowStrobe 3s ease-in-out infinite;
-        }
-
-        /* Liquid Glass UI */
+        /* ========== LIQUID GLASS UI ========== */
         .glass-card {
-            background: rgba(20, 20, 40, 0.25);
+            background: rgba(20, 20, 40, 0.3);
             backdrop-filter: blur(12px);
             border-radius: 24px;
             border: 1px solid rgba(0, 255, 136, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
 
         .glass-card:hover {
             border-color: #00ff88;
-            background: rgba(20, 20, 40, 0.35);
+            background: rgba(20, 20, 40, 0.45);
             box-shadow: 0 8px 40px rgba(0, 255, 136, 0.15);
         }
 
-        nav, .project-card, .school-card, .contact-card {
-            background: rgba(10, 10, 20, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 136, 0.25);
-            border-radius: 20px;
+        /* Slow Strobe */
+        @keyframes slowStrobe {
+            0% { text-shadow: 0 0 5px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
+            50% { text-shadow: 0 0 20px #00ff88; filter: drop-shadow(0 0 15px #00ff88); }
+            100% { text-shadow: 0 0 5px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
         }
 
-        .hero-image {
-            background: rgba(26, 26, 46, 0.5);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 255, 136, 0.4);
+        .green-glow {
+            animation: slowStrobe 3s ease-in-out infinite;
         }
 
-        .btn, .contact-btn {
-            background: rgba(0, 255, 136, 0.1);
-            backdrop-filter: blur(4px);
-            border: 1px solid #00ff88;
-        }
-
-        .btn:hover, .contact-btn:hover {
-            background: #00ff88;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-        }
-
-        /* Intro Animation Overlay */
-        .intro-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            z-index: 10000;
+        /* ========== DESKTOP LAYOUT: FIXED SECTIONS (NO SCROLL) ========== */
+        .desktop-layout {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 100vh;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        /* Left Sidebar - Navigation */
+        .sidebar {
+            width: 280px;
+            display: flex;
             flex-direction: column;
-            backdrop-filter: blur(2px);
+            gap: 20px;
         }
 
-        .thunder-icon {
-            font-size: 120px;
-            opacity: 0;
-            animation: thunderFlash 0.3s ease-in-out 3;
-            filter: drop-shadow(0 0 20px #00ff88);
+        .profile-card {
+            padding: 32px 20px;
+            text-align: center;
         }
 
-        @keyframes thunderFlash {
-            0% { opacity: 0; transform: scale(0.5); text-shadow: 0 0 0 #00ff88; }
-            20% { opacity: 1; transform: scale(1.2); text-shadow: 0 0 30px #00ff88; }
-            40% { opacity: 0.8; transform: scale(1); }
-            60% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0; transform: scale(0.8); }
+        .avatar {
+            font-size: 80px;
+            margin-bottom: 16px;
         }
 
-        .intro-name {
-            font-size: 52px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #fff, #00ff88);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-top: 30px;
-            opacity: 0;
-            transform: scale(0.9);
-        }
-
-        .intro-sub {
-            font-size: 20px;
-            color: #00ff88;
-            margin-top: 15px;
-            opacity: 0;
-            letter-spacing: 2px;
-        }
-
-        /* Nav */
-        nav {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 1200px;
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .logo {
-            font-size: 22px;
+        .profile-name {
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, #00ff88);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            margin-bottom: 8px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            color: #ccc;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
-            font-weight: 500;
-        }
-
-        .nav-links a:hover {
+        .profile-name span {
             color: #00ff88;
         }
 
-        /* Sections */
-        section {
-            padding: 120px 48px 80px;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Hero */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 40px;
-        }
-
-        .hero-content h1 {
-            font-size: 56px;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 20px;
-        }
-
-        .hero-content h1 span {
-            color: #00ff88;
-        }
-
-        .badge {
+        .profile-badge {
             display: inline-block;
             background: rgba(0,255,136,0.1);
             border: 1px solid rgba(0,255,136,0.3);
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-radius: 30px;
-            font-size: 13px;
-            margin-bottom: 20px;
+            font-size: 12px;
             color: #00ff88;
+            margin-top: 12px;
         }
 
-        .hero-content p {
-            font-size: 18px;
-            color: #aaa;
-            max-width: 500px;
-            margin-bottom: 30px;
+        .nav-menu {
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .btn, .contact-btn {
-            display: inline-block;
-            padding: 12px 28px;
-            color: #00ff88;
-            text-decoration: none;
-            border-radius: 30px;
-            transition: 0.3s;
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .contact-btn {
-            margin-top: 20px;
-            display: inline-flex;
+        .nav-item {
+            display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #aaa;
+            text-decoration: none;
         }
 
-        .hero-stats {
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border-left: 2px solid #00ff88;
+        }
+
+        /* Right Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .section-card {
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .section-title span {
+            color: #00ff88;
+        }
+
+        /* Stats */
+        .stats-grid {
             display: flex;
             gap: 40px;
-            margin-top: 40px;
+            margin-top: 24px;
+        }
+
+        .stat {
+            text-align: center;
         }
 
         .stat h3 {
-            font-size: 32px;
+            font-size: 36px;
             color: #00ff88;
-        }
-
-        .stat p {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .hero-image {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .hero-image .avatar-placeholder {
-            font-size: 80px;
         }
 
         /* Projects Grid */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
         }
 
         .project-card {
-            border-radius: 24px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            border-color: #00ff88;
-        }
-
-        .project-img {
-            height: 180px;
-            background: rgba(26, 26, 46, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 64px;
-        }
-
-        .project-info {
             padding: 20px;
+            cursor: pointer;
         }
 
-        .project-info h3 {
-            margin-bottom: 10px;
+        .project-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .project-card h3 {
             color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 18px;
         }
 
-        .project-info p {
+        .project-card p {
             color: #aaa;
-            font-size: 14px;
-            margin-bottom: 15px;
+            font-size: 13px;
+            margin-bottom: 12px;
         }
 
-        .project-tags {
+        .tags {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .tag {
-            background: rgba(26, 26, 46, 0.7);
-            padding: 4px 12px;
+            background: rgba(0,255,136,0.1);
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             color: #00ff88;
-            backdrop-filter: blur(4px);
-        }
-
-        .github-link {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #888;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .github-link span {
-            color: #00ff88;
-        }
-
-        /* School Card */
-        .school-card {
-            border-radius: 24px;
-            padding: 30px;
-            text-align: center;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .school-card h3 {
-            color: #00ff88;
-            margin-bottom: 10px;
         }
 
         /* Contact Card */
-        .contact-card {
-            border-radius: 24px;
-            padding: 40px;
-            text-align: center;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
         .contact-email {
-            font-size: 20px;
+            font-size: 18px;
             color: #00ff88;
             word-break: break-all;
-            margin: 20px 0;
+            margin: 16px 0;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid #00ff88;
+            border-radius: 30px;
+            color: #00ff88;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .contact-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
         }
 
         footer {
             text-align: center;
-            padding: 40px;
-            border-top: 1px solid rgba(0,255,136,0.2);
+            padding: 20px;
             color: #666;
-            font-size: 14px;
-        }
-
-        .birthday {
-            color: #00ff88;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            section {
-                padding: 100px 24px 60px;
-            }
-            .hero {
-                flex-direction: column;
-                text-align: center;
-            }
-            .hero-content h1 {
-                font-size: 40px;
-            }
-            .hero-stats {
-                justify-content: center;
-            }
-            .nav-links {
-                display: none;
-            }
-            nav {
-                width: 95%;
-                padding: 12px 20px;
-            }
-            .intro-name {
-                font-size: 28px;
-            }
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="particleCanvas"></canvas>
-    <canvas id="lightningCanvas"></canvas>
+    <!-- Intro Canvas: Spaceship to Moon -->
+    <canvas id="introCanvas"></canvas>
 
-    <!-- Intro Animation -->
-    <div class="intro-overlay" id="introOverlay">
-        <div class="thunder-container">
-            <div class="thunder-icon" id="thunderIcon">⚡</div>
-            <div class="intro-name" id="introName">KENJIE · ROOKIE CODER</div>
-            <div class="intro-sub" id="introSub">⚡ Full-Stack Developer · ICT 11 ⚡</div>
+    <!-- Main Site -->
+    <div class="site-wrapper" id="siteWrapper">
+        <div class="desktop-layout">
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <div class="profile-card glass-card">
+                    <div class="avatar">👨‍💻⚡</div>
+                    <div class="profile-name">Kenjie <span class="green-glow">Rookie Coder</span></div>
+                    <div class="profile-badge green-glow">⚡ ICT 11 ⚡</div>
+                </div>
+                <div class="nav-menu glass-card">
+                    <a href="#home" class="nav-item" data-section="home">🏠 Home</a>
+                    <a href="#projects" class="nav-item" data-section="projects">📁 Projects</a>
+                    <a href="#school" class="nav-item" data-section="school">🏫 School</a>
+                    <a href="#contact" class="nav-item" data-section="contact">📧 Contact</a>
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="content-area" id="contentArea">
+                <div id="home" class="section-card glass-card">
+                    <h2 class="section-title">About <span>Me</span></h2>
+                    <p style="font-size: 18px; margin-bottom: 16px;">16 years old | Born October 8, 2010</p>
+                    <p style="color: #aaa; margin-bottom: 24px;">Specializing in game codes, AI, websites, and creative digital experiences. Currently studying ICT 11 at Don Pablo Memorial Stand Alone Senior High School.</p>
+                    <div class="stats-grid">
+                        <div class="stat"><h3 class="green-glow">3</h3><p>Projects</p></div>
+                        <div class="stat"><h3 class="green-glow">ICT 11</h3><p>Current Strand</p></div>
+                        <div class="stat"><h3 class="green-glow">2026</h3><p>Graduating</p></div>
+                    </div>
+                </div>
+
+                <div id="projects" class="section-card glass-card">
+                    <h2 class="section-title">My <span>Projects</span></h2>
+                    <div class="projects-grid">
+                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
+                            <div class="project-icon">🧠</div>
+                            <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
+                            <p>Complete AI assistant with natural language processing and smart responses.</p>
+                            <div class="tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span></div>
+                        </div>
+                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
+                            <div class="project-icon">🛒</div>
+                            <h3>Acers Shop · E-commerce Store</h3>
+                            <p>Foam and plastic utensils store with cart system and WhatsApp checkout.</p>
+                            <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+                        </div>
+                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
+                            <div class="project-icon">🎭</div>
+                            <h3>kinx · Prank Site</h3>
+                            <p>Romantic prank website with love.py script and fake interactions.</p>
+                            <div class="tags"><span class="tag">Python</span><span class="tag">Prank</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="school" class="section-card glass-card">
+                    <h2 class="section-title">My <span>School</span></h2>
+                    <h3 style="color: #00ff88; margin-bottom: 12px;">🏫 Don Pablo Memorial Stand Alone Senior High School</h3>
+                    <p>ICT 11 Student (Information and Communications Technology)</p>
+                    <p class="green-glow" style="margin-top: 12px;">🎂 Born: October 8, 2010 · 16 years old</p>
+                    <p style="margin-top: 16px;">⚡ Currently learning: Web Development, AI, Python Programming, Game Design</p>
+                </div>
+
+                <div id="contact" class="section-card glass-card">
+                    <h2 class="section-title">Let's <span>Connect</span></h2>
+                    <div class="contact-email">kinxkenjiemartinez62@gmail.com</div>
+                    <a href="mailto:kinxkenjiemartinez62@gmail.com" class="contact-btn">✉️ Send Email</a>
+                </div>
+
+                <footer>
+                    <p>© 2025 Kenjie "Rookie Coder" · Don Pablo Memorial SHS · ICT 11 ⚡</p>
+                </footer>
+            </div>
         </div>
     </div>
 
-    <nav>
-        <div class="logo">kenjie.dev</div>
-        <div class="nav-links">
-            <a href="#home">Home</a>
-            <a href="#projects">Projects</a>
-            <a href="#school">School</a>
-            <a href="#contact">Contact</a>
-        </div>
-    </nav>
-
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <div class="badge">⚡ ROOKIE CODER ⚡</div>
-            <h1>Kenjie <span>Rookie Coder</span></h1>
-            <p>16 years old | Born October 8, 2010 | ICT 11 Student</p>
-            <p>Specializing in game codes, AI, websites, and creative digital experiences.</p>
-            <a href="#projects" class="btn">See My Work →</a>
-            <div class="hero-stats">
-                <div class="stat">
-                    <h3>3</h3>
-                    <p>Projects</p>
-                </div>
-                <div class="stat">
-                    <h3>ICT 11</h3>
-                    <p>Current Strand</p>
-                </div>
-                <div class="stat">
-                    <h3>2026</h3>
-                    <p>Graduating</p>
-                </div>
-            </div>
-        </div>
-        <div class="hero-image glass-card">
-            <div class="avatar-placeholder">👨‍💻⚡</div>
-        </div>
-    </section>
-
-    <section id="projects">
-        <h2 class="section-title">My <span>Projects</span></h2>
-        <div class="projects-grid">
-            <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
-                <div class="project-img">🧠</div>
-                <div class="project-info">
-                    <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
-                    <p>Complete AI assistant with natural language processing, smart responses, and interactive chatbot capabilities. Built with Python and NLP.</p>
-                    <div class="project-tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span><span class="tag">Chatbot</span></div>
-                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y</span></div>
-                </div>
-            </div>
-
-            <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
-                <div class="project-img">🛒</div>
-                <div class="project-info">
-                    <h3>Acers Shop · E-commerce Store</h3>
-                    <p>Foam and plastic utensils store with cart system, WhatsApp checkout, and fully responsive design. Built with HTML/CSS/JS.</p>
-                    <div class="project-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
-                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/Acers-shop</span></div>
-                </div>
-            </div>
-
-            <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
-                <div class="project-img">🎭</div>
-                <div class="project-info">
-                    <h3>kinx · Prank Site</h3>
-                    <p>Romantic prank website with love.py script, music, and fake romantic interactions. Pure Python fun prank project.</p>
-                    <div class="project-tags"><span class="tag">Python</span><span class="tag">Prank</span><span class="tag">Multimedia</span></div>
-                    <div class="github-link">🔗 <span>github.com/kinxkenjiemartinez62-cpu/kinx</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="school">
-        <h2 class="section-title">My <span>School</span></h2>
-        <div class="school-card glass-card">
-            <h3>🏫 Don Pablo Memorial Stand Alone Senior High School</h3>
-            <p>ICT 11 Student (Information and Communications Technology)</p>
-            <p>📍 <span class="birthday">🎂 Born: October 8, 2010 · 16 years old</span></p>
-            <p style="margin-top: 15px;">⚡ Currently learning: Web Development, AI, Python Programming, Game Design</p>
-        </div>
-    </section>
-
-    <section id="contact">
-        <h2 class="section-title">Let's <span>Connect</span></h2>
-        <div class="contact-card glass-card">
-            <p style="margin-bottom: 20px;">📧 Email me directly:</p>
-            <div class="contact-email">kinxkenjiemartinez62@gmail.com</div>
-            <a href="mailto:kinxkenjiemartinez62@gmail.com" class="contact-btn">✉️ Send Email</a>
-        </div>
-    </section>
-
-    <footer>
-        <p>© 2025 Kenjie "Rookie Coder" · Don Pablo Memorial SHS · ICT 11 ⚡</p>
-    </footer>
-
     <script>
-        // ========== FLYING PROTONS & ATOMS PARTICLE SYSTEM ==========
-        const particleCanvas = document.getElementById('particleCanvas');
-        const particleCtx = particleCanvas.getContext('2d');
-        let particles = [];
+        // ========== SPACESHIP TO MOON INTRO ANIMATION ==========
+        const introCanvas = document.getElementById('introCanvas');
+        const ctxIntro = introCanvas.getContext('2d');
+        const siteWrapper = document.getElementById('siteWrapper');
+        
+        let introActive = true;
+        let shipX, shipY;
+        let stars = [];
+        let moonX, moonY;
+        let animationId;
+        let progress = 0; // 0 to 1
+        let nameRevealed = false;
 
-        function resizeParticleCanvas() {
-            particleCanvas.width = window.innerWidth;
-            particleCanvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeParticleCanvas);
-        resizeParticleCanvas();
-
-        class Particle {
-            constructor() {
-                this.type = Math.random() > 0.7 ? 'atom' : 'proton';
-                this.x = Math.random() * particleCanvas.width;
-                this.y = Math.random() * particleCanvas.height;
-                this.size = this.type === 'atom' ? Math.random() * 15 + 8 : Math.random() * 6 + 3;
-                this.speedX = (Math.random() - 0.5) * 1.2;
-                this.speedY = (Math.random() - 0.5) * 1.2;
-                this.angle = 0;
-                this.orbitSpeed = Math.random() * 0.05 + 0.02;
-            }
-
-            draw() {
-                if (this.type === 'proton') {
-                    // Proton: circle with plus sign
-                    particleCtx.beginPath();
-                    particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    particleCtx.fillStyle = 'rgba(0, 255, 136, 0.6)';
-                    particleCtx.fill();
-                    particleCtx.fillStyle = 'white';
-                    particleCtx.font = `${this.size + 4}px Arial`;
-                    particleCtx.fillText('+', this.x - this.size/2, this.y + this.size/2);
-                } else {
-                    // Atom: nucleus with orbiting electron
-                    particleCtx.beginPath();
-                    particleCtx.arc(this.x, this.y, this.size/2, 0, Math.PI * 2);
-                    particleCtx.fillStyle = 'rgba(0, 255, 136, 0.8)';
-                    particleCtx.fill();
-                    
-                    // Orbiting electron
-                    let electronX = this.x + Math.cos(this.angle) * this.size;
-                    let electronY = this.y + Math.sin(this.angle) * this.size;
-                    particleCtx.beginPath();
-                    particleCtx.arc(electronX, electronY, 3, 0, Math.PI * 2);
-                    particleCtx.fillStyle = '#00ff88';
-                    particleCtx.fill();
-                    
-                    this.angle += this.orbitSpeed;
-                    
-                    // Orbit ring
-                    particleCtx.beginPath();
-                    particleCtx.ellipse(this.x, this.y, this.size, this.size, 0, 0, Math.PI * 2);
-                    particleCtx.strokeStyle = 'rgba(0, 255, 136, 0.3)';
-                    particleCtx.stroke();
-                }
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                
-                if (this.x < -50) this.x = particleCanvas.width + 50;
-                if (this.x > particleCanvas.width + 50) this.x = -50;
-                if (this.y < -50) this.y = particleCanvas.height + 50;
-                if (this.y > particleCanvas.height + 50) this.y = -50;
-            }
+        function resizeIntro() {
+            introCanvas.width = window.innerWidth;
+            introCanvas.height = window.innerHeight;
+            initIntro();
         }
 
-        function initParticles() {
-            for (let i = 0; i < 50; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-            for (let particle of particles) {
-                particle.update();
-                particle.draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        initParticles();
-        animateParticles();
-
-        // ========== INTRO THUNDER + NAME REVEAL ==========
-        const thunderIcon = document.getElementById('thunderIcon');
-        const introName = document.getElementById('introName');
-        const introSub = document.getElementById('introSub');
-        const overlay = document.getElementById('introOverlay');
-
-        let thunderCount = 0;
-        const thunderInterval = setInterval(() => {
-            thunderIcon.style.animation = 'none';
-            thunderIcon.offsetHeight;
-            thunderIcon.style.animation = 'thunderFlash 0.3s ease-in-out';
-            triggerCanvasLightning();
+        function initIntro() {
+            shipX = introCanvas.width / 2;
+            shipY = introCanvas.height - 100;
+            moonX = introCanvas.width - 120;
+            moonY = 120;
             
-            thunderCount++;
-            if (thunderCount >= 4) {
-                clearInterval(thunderInterval);
+            stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * introCanvas.width,
+                    y: Math.random() * introCanvas.height,
+                    radius: Math.random() * 2,
+                    alpha: Math.random() * 0.8 + 0.2
+                });
+            }
+        }
+
+        function drawStars() {
+            for (let star of stars) {
+                ctxIntro.beginPath();
+                ctxIntro.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctxIntro.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctxIntro.fill();
+            }
+        }
+
+        function drawMoon() {
+            // Moon glow
+            ctxIntro.shadowBlur = 30;
+            ctxIntro.shadowColor = '#00ff88';
+            ctxIntro.beginPath();
+            ctxIntro.arc(moonX, moonY, 50, 0, Math.PI * 2);
+            ctxIntro.fillStyle = '#aaddff';
+            ctxIntro.fill();
+            ctxIntro.shadowBlur = 0;
+            // Craters
+            ctxIntro.fillStyle = '#88aacc';
+            ctxIntro.beginPath();
+            ctxIntro.arc(moonX - 15, moonY - 10, 8, 0, Math.PI * 2);
+            ctxIntro.fill();
+            ctxIntro.beginPath();
+            ctxIntro.arc(moonX + 12, moonY + 5, 6, 0, Math.PI * 2);
+            ctxIntro.fill();
+            ctxIntro.beginPath();
+            ctxIntro.arc(moonX - 5, moonY + 15, 5, 0, Math.PI * 2);
+            ctxIntro.fill();
+            
+            // Moon text
+            ctxIntro.fillStyle = '#00ff88';
+            ctxIntro.font = 'bold 20px Inter';
+            ctxIntro.shadowBlur = 10;
+            ctxIntro.fillText("🌙 MOON", moonX - 40, moonY - 20);
+            ctxIntro.shadowBlur = 0;
+        }
+
+        function drawSpaceship(x, y, angle) {
+            ctxIntro.save();
+            ctxIntro.translate(x, y);
+            ctxIntro.rotate(angle);
+            // Ship body
+            ctxIntro.fillStyle = '#888';
+            ctxIntro.beginPath();
+            ctxIntro.moveTo(0, -20);
+            ctxIntro.lineTo(15, 15);
+            ctxIntro.lineTo(8, 10);
+            ctxIntro.lineTo(8, 20);
+            ctxIntro.lineTo(0, 25);
+            ctxIntro.lineTo(-8, 20);
+            ctxIntro.lineTo(-8, 10);
+            ctxIntro.lineTo(-15, 15);
+            ctxIntro.closePath();
+            ctxIntro.fill();
+            ctxIntro.fillStyle = '#ff6600';
+            ctxIntro.beginPath();
+            ctxIntro.moveTo(0, -20);
+            ctxIntro.lineTo(5, 0);
+            ctxIntro.lineTo(-5, 0);
+            ctxIntro.closePath();
+            ctxIntro.fill();
+            // Engine fire
+            ctxIntro.fillStyle = '#ff4400';
+            ctxIntro.beginPath();
+            ctxIntro.moveTo(0, 25);
+            ctxIntro.lineTo(6, 35);
+            ctxIntro.lineTo(0, 32);
+            ctxIntro.lineTo(-6, 35);
+            ctxIntro.closePath();
+            ctxIntro.fill();
+            ctxIntro.restore();
+        }
+
+        function animateIntro() {
+            if (!introActive) return;
+            
+            ctxIntro.clearRect(0, 0, introCanvas.width, introCanvas.height);
+            
+            // Background gradient
+            let grad = ctxIntro.createLinearGradient(0, 0, 0, introCanvas.height);
+            grad.addColorStop(0, '#030318');
+            grad.addColorStop(1, '#0a0a2a');
+            ctxIntro.fillStyle = grad;
+            ctxIntro.fillRect(0, 0, introCanvas.width, introCanvas.height);
+            
+            drawStars();
+            drawMoon();
+            
+            // Progress animation (increase over time)
+            if (progress < 1) {
+                progress += 0.002;
+            }
+            
+            // Ship position interpolation
+            let targetX = moonX;
+            let targetY = moonY;
+            
+            let easeProgress = Math.pow(progress, 0.7);
+            shipX = shipX + (targetX - shipX) * 0.02;
+            shipY = shipY + (targetY - shipY) * 0.02;
+            
+            // Angle towards moon
+            let dx = moonX - shipX;
+            let dy = moonY - shipY;
+            let angle = Math.atan2(dy, dx);
+            
+            drawSpaceship(shipX, shipY, angle);
+            
+            // Trail particles
+            for (let i = 0; i < 3; i++) {
+                ctxIntro.fillStyle = `rgba(255, 100, 0, ${Math.random() * 0.5})`;
+                ctxIntro.beginPath();
+                ctxIntro.arc(shipX - Math.cos(angle) * 20 + (Math.random() - 0.5) * 10, 
+                            shipY - Math.sin(angle) * 20 + (Math.random() - 0.5) * 10, 
+                            Math.random() * 4, 0, Math.PI * 2);
+                ctxIntro.fill();
+            }
+            
+            // When ship reaches moon
+            let distToMoon = Math.hypot(shipX - moonX, shipY - moonY);
+            if (distToMoon < 50 && !nameRevealed) {
+                nameRevealed = true;
+                // Draw name on moon
+                ctxIntro.fillStyle = '#00ff88';
+                ctxIntro.font = 'bold 32px Inter';
+                ctxIntro.shadowBlur = 15;
+                ctxIntro.shadowColor = '#00ff88';
+                ctxIntro.fillText("KENJIE", moonX - 70, moonY + 60);
+                ctxIntro.font = '20px Inter';
+                ctxIntro.fillStyle = '#ccc';
+                ctxIntro.fillText("ROOKIE CODER", moonX - 75, moonY + 95);
+                ctxIntro.shadowBlur = 0;
+                
                 setTimeout(() => {
-                    introName.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    introName.style.opacity = '1';
-                    introName.style.transform = 'scale(1)';
-                    
+                    introActive = false;
+                    introCanvas.style.opacity = '0';
+                    introCanvas.style.transition = 'opacity 1s';
+                    siteWrapper.style.display = 'block';
                     setTimeout(() => {
-                        introSub.style.transition = 'opacity 0.5s ease';
-                        introSub.style.opacity = '1';
-                    }, 200);
-                    
-                    setTimeout(() => {
-                        overlay.style.transition = 'opacity 0.8s ease';
-                        overlay.style.opacity = '0';
-                        setTimeout(() => {
-                            overlay.style.display = 'none';
-                        }, 800);
-                    }, 1800);
-                }, 100);
+                        introCanvas.style.display = 'none';
+                    }, 1000);
+                }, 2000);
             }
-        }, 400);
-
-        // ========== LIGHTNING FOLLOWING MOUSE/TOUCH ==========
-        const canvas = document.getElementById('lightningCanvas');
-        const ctx = canvas.getContext('2d');
-        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-        let lightningActive = false;
-        let lightningPoints = [];
-        let lastTrigger = 0;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        function triggerCanvasLightning(x = mouseX, y = mouseY) {
-            lightningActive = true;
-            lightningPoints = [];
-            const startX = x;
-            const startY = y;
             
-            let points = [{x: startX, y: startY}];
-            let currentX = startX;
-            let currentY = startY;
-            
-            for (let i = 0; i < 15; i++) {
-                let nextX = currentX + (Math.random() - 0.5) * 40;
-                let nextY = currentY + (Math.random() - 0.5) * 30 + 15;
-                nextX = Math.min(Math.max(nextX, 0), canvas.width);
-                nextY = Math.min(Math.max(nextY, 0), canvas.height);
-                points.push({x: nextX, y: nextY});
-                currentX = nextX;
-                currentY = nextY;
-                
-                if (Math.random() > 0.7 && i > 2) {
-                    let branchX = currentX + (Math.random() - 0.5) * 30;
-                    let branchY = currentY + (Math.random() - 0.5) * 25;
-                    branchX = Math.min(Math.max(branchX, 0), canvas.width);
-                    branchY = Math.min(Math.max(branchY, 0), canvas.height);
-                    lightningPoints.push([{x: currentX, y: currentY}, {x: branchX, y: branchY}]);
-                }
+            // Draw name after landing
+            if (nameRevealed) {
+                ctxIntro.fillStyle = '#00ff88';
+                ctxIntro.font = 'bold 32px Inter';
+                ctxIntro.shadowBlur = 15;
+                ctxIntro.fillText("KENJIE", moonX - 70, moonY + 60);
+                ctxIntro.font = '20px Inter';
+                ctxIntro.fillStyle = '#ccc';
+                ctxIntro.fillText("ROOKIE CODER", moonX - 75, moonY + 95);
             }
-            lightningPoints.unshift(points);
             
-            setTimeout(() => { lightningActive = false; }, 150);
-            animateLightning();
+            animationId = requestAnimationFrame(animateIntro);
         }
 
-        function drawLightning() {
-            if (!lightningActive && lightningPoints.length === 0) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            for (let branch of lightningPoints) {
-                if (Array.isArray(branch[0]) && branch[0].x !== undefined) {
-                    ctx.beginPath();
-                    ctx.moveTo(branch[0].x, branch[0].y);
-                    ctx.lineTo(branch[1].x, branch[1].y);
-                    ctx.strokeStyle = '#00ff88';
-                    ctx.lineWidth = 3;
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#00ff88';
-                    ctx.stroke();
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(branch[0].x, branch[0].y);
-                    ctx.lineTo(branch[1].x, branch[1].y);
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
-                } else if (Array.isArray(branch)) {
-                    ctx.beginPath();
-                    ctx.moveTo(branch[0].x, branch[0].y);
-                    for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i].x, branch[i].y);
-                    ctx.strokeStyle = '#00ff88';
-                    ctx.lineWidth = 4;
-                    ctx.shadowBlur = 20;
-                    ctx.stroke();
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(branch[0].x, branch[0].y);
-                    for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i].x, branch[i].y);
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
-                }
-            }
-            ctx.shadowBlur = 0;
-        }
-
-        function animateLightning() {
-            drawLightning();
-            if (lightningActive) requestAnimationFrame(animateLightning);
-            else ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            const now = Date.now();
-            if (now - lastTrigger > 300 && Math.random() > 0.85) {
-                lastTrigger = now;
-                triggerCanvasLightning();
+        window.addEventListener('resize', () => {
+            if (introActive) {
+                resizeIntro();
             }
         });
 
-        document.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) {
-                mouseX = e.touches[0].clientX;
-                mouseY = e.touches[0].clientY;
-                const now = Date.now();
-                if (now - lastTrigger > 300 && Math.random() > 0.8) {
-                    lastTrigger = now;
-                    triggerCanvasLightning();
-                }
+        resizeIntro();
+        animateIntro();
+
+        // ========== DESKTOP NAVIGATION: CHANGE CONTENT WITHOUT SCROLL ==========
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = {
+            home: document.getElementById('home'),
+            projects: document.getElementById('projects'),
+            school: document.getElementById('school'),
+            contact: document.getElementById('contact')
+        };
+
+        function showSection(sectionId) {
+            // Hide all sections
+            Object.values(sections).forEach(section => {
+                if (section) section.style.display = 'none';
+            });
+            // Show selected
+            if (sections[sectionId]) {
+                sections[sectionId].style.display = 'block';
             }
-        });
+            // Update active nav
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
 
-        document.addEventListener('click', (e) => {
-            triggerCanvasLightning(e.clientX, e.clientY);
-        });
+        // Initially show home
+        sections.projects.style.display = 'none';
+        sections.school.style.display = 'none';
+        sections.contact.style.display = 'none';
+        sections.home.style.display = 'block';
 
-        // ========== SMOOTH SCROLL ==========
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                const sectionId = item.getAttribute('data-section');
+                showSection(sectionId);
             });
         });
 
-        // Scroll animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.project-card, .school-card, .contact-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = '0.5s';
-            observer.observe(el);
-        });
+        // No particles or lightning to keep clean
     </script>
 </body>
 </html>
