@@ -19,7 +19,7 @@
             overflow-x: hidden;
         }
 
-        /* ========== CLEAN PARTICLE CANVAS (subtle, not messy) ========== */
+        /* Particle Canvas */
         #particleCanvas {
             position: fixed;
             top: 0;
@@ -28,7 +28,7 @@
             height: 100%;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.4;
+            opacity: 0.35;
         }
 
         /* Lightning Canvas */
@@ -50,7 +50,7 @@
             width: 100%;
             height: 100%;
             z-index: 10000;
-            background: #030318;
+            background: #010108;
         }
 
         /* Main Site */
@@ -87,14 +87,13 @@
             animation: slowStrobe 3s ease-in-out infinite;
         }
 
-        /* Responsive Layout (works on all devices) */
+        /* Responsive Layout */
         .container {
             max-width: 1300px;
             margin: 0 auto;
             padding: 24px;
         }
 
-        /* Header / Nav */
         nav {
             display: flex;
             justify-content: space-between;
@@ -136,7 +135,6 @@
             background: rgba(0,255,136,0.1);
         }
 
-        /* Hero Section */
         .hero {
             display: flex;
             flex-wrap: wrap;
@@ -229,11 +227,6 @@
             50% { transform: translateY(-12px); }
         }
 
-        /* Sections */
-        section {
-            margin-bottom: 60px;
-        }
-
         .section-title {
             font-size: 32px;
             margin-bottom: 32px;
@@ -244,7 +237,6 @@
             color: #00ff88;
         }
 
-        /* Projects Grid */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -276,7 +268,6 @@
             color: #aaa;
             font-size: 14px;
             margin-bottom: 16px;
-            line-height: 1.4;
         }
 
         .tags {
@@ -293,7 +284,6 @@
             color: #00ff88;
         }
 
-        /* School + Contact Cards */
         .school-card, .contact-card {
             padding: 36px;
             text-align: center;
@@ -344,9 +334,6 @@
                 width: 100%;
                 text-align: center;
             }
-            .project-card:hover {
-                transform: none;
-            }
         }
     </style>
 </head>
@@ -394,20 +381,20 @@
                     <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
                         <div class="project-icon">🧠</div>
                         <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
-                        <p>Complete AI assistant with natural language processing, smart responses, and interactive chatbot capabilities. Built with Python and NLP.</p>
+                        <p>Complete AI assistant with natural language processing, smart responses, and interactive chatbot capabilities.</p>
                         <div class="tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span></div>
                     </div>
                     <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
                         <div class="project-icon">🛒</div>
                         <h3>Acers Shop · E-commerce Store</h3>
-                        <p>Foam and plastic utensils store with cart system, WhatsApp checkout, and fully responsive design. Built with HTML/CSS/JS.</p>
+                        <p>Foam and plastic utensils store with cart system, WhatsApp checkout, and fully responsive design.</p>
                         <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
                     </div>
                     <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
                         <div class="project-icon">🎭</div>
                         <h3>kinx · Prank Site</h3>
-                        <p>Romantic prank website with love.py script, music, and fake romantic interactions. Pure Python fun prank project.</p>
-                        <div class="tags"><span class="tag">Python</span><span class="tag">Prank</span><span class="tag">Multimedia</span></div>
+                        <p>Romantic prank website with love.py script, music, and fake romantic interactions.</p>
+                        <div class="tags"><span class="tag">Python</span><span class="tag">Prank</span></div>
                     </div>
                 </div>
             </section>
@@ -436,7 +423,7 @@
     </div>
 
     <script>
-        // ========== CLEAN PARTICLE SYSTEM (subtle protons & atoms) ==========
+        // ========== CLEAN PARTICLE SYSTEM ==========
         const particleCanvas = document.getElementById('particleCanvas');
         const pCtx = particleCanvas.getContext('2d');
         let particles = [];
@@ -452,28 +439,25 @@
                 this.x = Math.random() * particleCanvas.width;
                 this.y = Math.random() * particleCanvas.height;
                 this.size = this.type === 'atom' ? 12 : 5;
-                this.speedX = (Math.random() - 0.5) * 0.4;
-                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
                 this.angle = Math.random() * Math.PI * 2;
-                this.orbitSpeed = 0.03;
+                this.orbitSpeed = 0.025;
             }
-
             draw() {
                 if (this.type === 'proton') {
                     pCtx.beginPath();
                     pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.25)';
                     pCtx.fill();
-                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.7)';
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.6)';
                     pCtx.font = `${this.size + 4}px Arial`;
                     pCtx.fillText('+', this.x - 4, this.y + 5);
                 } else {
-                    // atom nucleus
                     pCtx.beginPath();
                     pCtx.arc(this.x, this.y, 6, 0, Math.PI * 2);
-                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.4)';
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.3)';
                     pCtx.fill();
-                    // orbiting electron
                     let ex = this.x + Math.cos(this.angle) * 12;
                     let ey = this.y + Math.sin(this.angle) * 12;
                     pCtx.beginPath();
@@ -481,14 +465,12 @@
                     pCtx.fillStyle = '#00ff88';
                     pCtx.fill();
                     this.angle += this.orbitSpeed;
-                    // faint orbit line
                     pCtx.beginPath();
                     pCtx.ellipse(this.x, this.y, 12, 12, 0, 0, Math.PI * 2);
-                    pCtx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
+                    pCtx.strokeStyle = 'rgba(0, 255, 136, 0.12)';
                     pCtx.stroke();
                 }
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
@@ -501,29 +483,21 @@
 
         function initParticles() {
             particles = [];
-            for (let i = 0; i < 35; i++) {
-                particles.push(new Particle());
-            }
+            for (let i = 0; i < 30; i++) particles.push(new Particle());
         }
 
         function animateParticles() {
             pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-            for (let p of particles) {
-                p.update();
-                p.draw();
-            }
+            for (let p of particles) { p.update(); p.draw(); }
             requestAnimationFrame(animateParticles);
         }
 
-        window.addEventListener('resize', () => {
-            resizeParticleCanvas();
-            initParticles();
-        });
+        window.addEventListener('resize', () => { resizeParticleCanvas(); initParticles(); });
         resizeParticleCanvas();
         initParticles();
         animateParticles();
 
-        // ========== LIGHTNING (cleaner, less frequent) ==========
+        // ========== LIGHTNING ==========
         const lightningCanvas = document.getElementById('lightningCanvas');
         const lCtx = lightningCanvas.getContext('2d');
         let lightningActive = false;
@@ -555,10 +529,7 @@
         }
 
         function drawLightning() {
-            if (!lightningActive) {
-                lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
-                return;
-            }
+            if (!lightningActive) { lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height); return; }
             lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
             for (let branch of lightningPoints) {
                 lCtx.beginPath();
@@ -566,7 +537,7 @@
                 for (let i = 1; i < branch.length; i++) lCtx.lineTo(branch[i].x, branch[i].y);
                 lCtx.strokeStyle = '#00ff88';
                 lCtx.lineWidth = 2.5;
-                lCtx.shadowBlur = 12;
+                lCtx.shadowBlur = 10;
                 lCtx.shadowColor = '#00ff88';
                 lCtx.stroke();
                 lCtx.beginPath();
@@ -580,136 +551,145 @@
         }
 
         function drawLightningLoop() {
-            if (lightningActive) {
-                drawLightning();
-                requestAnimationFrame(drawLightningLoop);
-            } else {
-                lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
-            }
+            if (lightningActive) { drawLightning(); requestAnimationFrame(drawLightningLoop); }
+            else lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
         }
 
         document.addEventListener('click', (e) => triggerLightning(e.clientX, e.clientY));
-        document.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.96) triggerLightning(e.clientX, e.clientY);
-        });
+        document.addEventListener('mousemove', (e) => { if (Math.random() > 0.96) triggerLightning(e.clientX, e.clientY); });
 
-        // ========== SPACESHIP INTRO (smoother) ==========
+        // ========== SOLAR SYSTEM INTRO (PLANETS ORBITING, THEN ALIGN) ==========
         const introCanvas = document.getElementById('introCanvas');
         const iCtx = introCanvas.getContext('2d');
         const siteWrapperDiv = document.getElementById('siteWrapper');
         let introActive = true;
-        let shipX, shipY, moonX, moonY, progress = 0, nameRevealed = false;
-        let stars = [];
+        let alignmentProgress = 0; // 0 to 1, increases over time
+        let planets = [];
+        let starsField = [];
+        let alignmentTriggered = false;
+        let siteRevealed = false;
+
+        const planetData = [
+            { name: 'Mercury', radius: 6, distance: 70, speed: 0.02, color: '#c2b280', angle: 0 },
+            { name: 'Venus',   radius: 8, distance: 100, speed: 0.012, color: '#e6b800', angle: 1.2 },
+            { name: 'Earth',   radius: 9, distance: 135, speed: 0.01, color: '#4da6ff', angle: 2.1 },
+            { name: 'Mars',    radius: 7, distance: 170, speed: 0.008, color: '#ff6600', angle: 3.0 },
+            { name: 'Jupiter', radius: 16, distance: 230, speed: 0.005, color: '#d4a373', angle: 4.2 },
+            { name: 'Saturn',  radius: 14, distance: 290, speed: 0.004, color: '#f4d03f', angle: 5.1, hasRing: true },
+            { name: 'Uranus',  radius: 11, distance: 350, speed: 0.003, color: '#b0e0e6', angle: 0.8 },
+            { name: 'Neptune', radius: 11, distance: 400, speed: 0.0025, color: '#4169e1', angle: 3.5 }
+        ];
 
         function resizeIntro() {
             introCanvas.width = window.innerWidth;
             introCanvas.height = window.innerHeight;
-            shipX = introCanvas.width / 2;
-            shipY = introCanvas.height - 80;
-            moonX = introCanvas.width - 100;
-            moonY = 100;
-            stars = [];
-            for (let i = 0; i < 150; i++) {
-                stars.push({ x: Math.random() * introCanvas.width, y: Math.random() * introCanvas.height, r: Math.random() * 1.5 });
+            starsField = [];
+            for (let i = 0; i < 200; i++) {
+                starsField.push({ x: Math.random() * introCanvas.width, y: Math.random() * introCanvas.height, size: Math.random() * 1.5 });
             }
         }
 
-        function drawIntro() {
+        function drawSolarSystem() {
             if (!introActive) return;
             iCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
-            let grad = iCtx.createLinearGradient(0, 0, 0, introCanvas.height);
-            grad.addColorStop(0, '#030318');
-            grad.addColorStop(1, '#0a0a2a');
-            iCtx.fillStyle = grad;
+            
+            // Starfield
+            iCtx.fillStyle = '#010108';
             iCtx.fillRect(0, 0, introCanvas.width, introCanvas.height);
-            for (let s of stars) {
-                iCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.5 + 0.3})`;
+            for (let s of starsField) {
+                iCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.6 + 0.2})`;
                 iCtx.beginPath();
-                iCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                iCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 iCtx.fill();
             }
-            // moon
-            iCtx.shadowBlur = 20;
-            iCtx.shadowColor = '#00ff88';
+            
+            const centerX = introCanvas.width / 2;
+            const centerY = introCanvas.height / 2;
+            
+            // Sun
+            iCtx.shadowBlur = 30;
+            iCtx.shadowColor = '#ffaa33';
             iCtx.beginPath();
-            iCtx.arc(moonX, moonY, 45, 0, Math.PI * 2);
-            iCtx.fillStyle = '#bbddff';
+            iCtx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+            iCtx.fillStyle = '#ffcc44';
             iCtx.fill();
             iCtx.shadowBlur = 0;
-            iCtx.fillStyle = '#88aacc';
-            iCtx.beginPath();
-            iCtx.arc(moonX - 12, moonY - 8, 6, 0, Math.PI * 2);
-            iCtx.fill();
-            iCtx.beginPath();
-            iCtx.arc(moonX + 10, moonY + 5, 5, 0, Math.PI * 2);
-            iCtx.fill();
-            // ship movement
-            if (progress < 1) progress += 0.002;
-            shipX += (moonX - shipX) * 0.02;
-            shipY += (moonY - shipY) * 0.02;
-            let angle = Math.atan2(moonY - shipY, moonX - shipX);
-            iCtx.save();
-            iCtx.translate(shipX, shipY);
-            iCtx.rotate(angle);
-            iCtx.fillStyle = '#aaa';
-            iCtx.beginPath();
-            iCtx.moveTo(0, -18);
-            iCtx.lineTo(14, 12);
-            iCtx.lineTo(7, 8);
-            iCtx.lineTo(7, 18);
-            iCtx.lineTo(0, 22);
-            iCtx.lineTo(-7, 18);
-            iCtx.lineTo(-7, 8);
-            iCtx.lineTo(-14, 12);
-            iCtx.fill();
-            iCtx.fillStyle = '#ff6600';
-            iCtx.beginPath();
-            iCtx.moveTo(0, -18);
-            iCtx.lineTo(4, 0);
-            iCtx.lineTo(-4, 0);
-            iCtx.fill();
-            iCtx.fillStyle = '#ff4400';
-            iCtx.beginPath();
-            iCtx.moveTo(0, 22);
-            iCtx.lineTo(5, 32);
-            iCtx.lineTo(0, 28);
-            iCtx.lineTo(-5, 32);
-            iCtx.fill();
-            iCtx.restore();
-            // exhaust trail
-            for (let i=0;i<2;i++) {
-                iCtx.fillStyle = `rgba(255,100,0,${Math.random()*0.5})`;
+            
+            // Update planet angles based on alignmentProgress
+            let targetAngleOffset = alignmentProgress * Math.PI * 2;
+            
+            for (let p of planetData) {
+                // Normal orbit until alignmentProgress reaches 1, then align
+                let angle;
+                if (alignmentProgress >= 0.99) {
+                    angle = 0; // aligned
+                } else {
+                    angle = p.angle + (alignmentProgress * targetAngleOffset);
+                }
+                let x = centerX + Math.cos(angle) * p.distance;
+                let y = centerY + Math.sin(angle) * p.distance;
+                
+                // Draw orbit line
                 iCtx.beginPath();
-                iCtx.arc(shipX - Math.cos(angle)*18 + (Math.random()-0.5)*8, shipY - Math.sin(angle)*18 + (Math.random()-0.5)*8, Math.random()*4, 0, Math.PI*2);
+                iCtx.ellipse(centerX, centerY, p.distance, p.distance, 0, 0, Math.PI * 2);
+                iCtx.strokeStyle = 'rgba(100,100,150,0.2)';
+                iCtx.stroke();
+                
+                // Planet
+                iCtx.shadowBlur = 8;
+                iCtx.shadowColor = p.color;
+                iCtx.beginPath();
+                iCtx.arc(x, y, p.radius, 0, Math.PI * 2);
+                iCtx.fillStyle = p.color;
                 iCtx.fill();
+                if (p.hasRing) {
+                    iCtx.beginPath();
+                    iCtx.ellipse(x, y, p.radius + 5, p.radius + 2, 0.3, 0, Math.PI * 2);
+                    iCtx.fillStyle = 'rgba(200,180,100,0.5)';
+                    iCtx.fill();
+                }
+                iCtx.shadowBlur = 0;
             }
-            let dist = Math.hypot(shipX - moonX, shipY - moonY);
-            if (dist < 45 && !nameRevealed) {
-                nameRevealed = true;
+            
+            // Increase alignment progress
+            if (alignmentProgress < 1 && !siteRevealed) {
+                alignmentProgress += 0.003;
+            }
+            
+            // When aligned, show name and reveal site
+            if (alignmentProgress >= 0.98 && !siteRevealed) {
+                siteRevealed = true;
+                iCtx.font = 'bold 38px Inter';
+                iCtx.fillStyle = '#00ff88';
+                iCtx.shadowBlur = 15;
+                iCtx.fillText("KENJIE", centerX - 100, centerY + 100);
+                iCtx.font = '22px Inter';
+                iCtx.fillStyle = '#ddd';
+                iCtx.fillText("ROOKIE CODER", centerX - 100, centerY + 140);
+                iCtx.shadowBlur = 0;
+                
                 setTimeout(() => {
                     introActive = false;
                     introCanvas.style.opacity = '0';
-                    introCanvas.style.transition = 'opacity 1.2s';
+                    introCanvas.style.transition = 'opacity 1.2s ease';
                     siteWrapperDiv.style.display = 'block';
-                    setTimeout(() => { introCanvas.style.display = 'none'; }, 1300);
-                }, 1800);
-            }
-            if (nameRevealed) {
-                iCtx.font = 'bold 34px Inter';
+                    setTimeout(() => {
+                        introCanvas.style.display = 'none';
+                    }, 1300);
+                }, 2000);
+            } else if (!siteRevealed) {
+                // Show "Aligning planets..." text
+                iCtx.font = '14px monospace';
                 iCtx.fillStyle = '#00ff88';
-                iCtx.shadowBlur = 12;
-                iCtx.fillText("KENJIE", moonX - 70, moonY + 55);
-                iCtx.font = '18px Inter';
-                iCtx.fillStyle = '#ddd';
-                iCtx.fillText("ROOKIE CODER", moonX - 70, moonY + 85);
-                iCtx.shadowBlur = 0;
+                iCtx.fillText(`⚡ PLANETARY ALIGNMENT: ${Math.floor(alignmentProgress * 100)}% ⚡`, centerX - 120, centerY - 50);
             }
-            requestAnimationFrame(drawIntro);
+            
+            requestAnimationFrame(drawSolarSystem);
         }
 
-        window.addEventListener('resize', resizeIntro);
+        window.addEventListener('resize', () => { resizeIntro(); });
         resizeIntro();
-        drawIntro();
+        drawSolarSystem();
 
         // smooth scroll for anchor links
         document.querySelectorAll('.nav-links a').forEach(anchor => {
