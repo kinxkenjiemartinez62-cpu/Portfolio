@@ -2,26 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Kenjie · Rookie Coder</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #0a0a0a;
             color: #ffffff;
+            scroll-behavior: smooth;
             overflow-x: hidden;
-            overflow-y: hidden;
-            height: 100vh;
         }
 
-        /* ========== INTRO: SPACESHIP TO MOON ========== */
+        /* ========== CLEAN PARTICLE CANVAS (subtle, not messy) ========== */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* Lightning Canvas */
+        #lightningCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+        }
+
+        /* Intro Canvas */
         #introCanvas {
             position: fixed;
             top: 0;
@@ -32,571 +53,673 @@
             background: #030318;
         }
 
-        /* Main Site (hidden until intro ends) */
+        /* Main Site */
         .site-wrapper {
+            position: relative;
+            z-index: 1;
             display: none;
-            height: 100vh;
-            overflow-y: auto;
-            scroll-behavior: smooth;
+            background: transparent;
         }
 
-        /* Custom scrollbar */
-        .site-wrapper::-webkit-scrollbar {
-            width: 6px;
-        }
-        .site-wrapper::-webkit-scrollbar-track {
-            background: #111;
-        }
-        .site-wrapper::-webkit-scrollbar-thumb {
-            background: #00ff88;
-            border-radius: 3px;
-        }
-
-        /* ========== LIQUID GLASS UI ========== */
+        /* Liquid Glass UI */
         .glass-card {
-            background: rgba(20, 20, 40, 0.3);
+            background: rgba(15, 15, 30, 0.55);
             backdrop-filter: blur(12px);
-            border-radius: 24px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 28px;
+            border: 1px solid rgba(0, 255, 136, 0.25);
             transition: all 0.3s ease;
         }
 
         .glass-card:hover {
             border-color: #00ff88;
-            background: rgba(20, 20, 40, 0.45);
-            box-shadow: 0 8px 40px rgba(0, 255, 136, 0.15);
+            background: rgba(25, 25, 50, 0.65);
+            box-shadow: 0 8px 40px rgba(0, 255, 136, 0.1);
         }
 
         /* Slow Strobe */
         @keyframes slowStrobe {
-            0% { text-shadow: 0 0 5px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
-            50% { text-shadow: 0 0 20px #00ff88; filter: drop-shadow(0 0 15px #00ff88); }
-            100% { text-shadow: 0 0 5px #00ff88; filter: drop-shadow(0 0 5px #00ff88); }
+            0% { text-shadow: 0 0 4px #00ff88; }
+            50% { text-shadow: 0 0 16px #00ff88; }
+            100% { text-shadow: 0 0 4px #00ff88; }
         }
 
         .green-glow {
             animation: slowStrobe 3s ease-in-out infinite;
         }
 
-        /* ========== DESKTOP LAYOUT: FIXED SECTIONS (NO SCROLL) ========== */
-        .desktop-layout {
-            display: flex;
-            height: 100vh;
+        /* Responsive Layout (works on all devices) */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
             padding: 24px;
-            gap: 24px;
         }
 
-        /* Left Sidebar - Navigation */
-        .sidebar {
-            width: 280px;
+        /* Header / Nav */
+        nav {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 28px;
+            margin-bottom: 40px;
+            border-radius: 60px;
         }
 
-        .profile-card {
-            padding: 32px 20px;
-            text-align: center;
-        }
-
-        .avatar {
-            font-size: 80px;
-            margin-bottom: 16px;
-        }
-
-        .profile-name {
+        .logo {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .profile-name span {
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: 0.3s;
+            padding: 6px 12px;
+            border-radius: 30px;
+        }
+
+        .nav-links a:hover {
             color: #00ff88;
+            background: rgba(0,255,136,0.1);
         }
 
-        .profile-badge {
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            padding: 40px 28px;
+            margin-bottom: 40px;
+            border-radius: 40px;
+        }
+
+        .hero-content {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .badge {
             display: inline-block;
             background: rgba(0,255,136,0.1);
             border: 1px solid rgba(0,255,136,0.3);
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 12px;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            margin-bottom: 24px;
             color: #00ff88;
-            margin-top: 12px;
         }
 
-        .nav-menu {
-            padding: 24px 20px;
+        .hero-content h1 {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero-content h1 span {
+            color: #00ff88;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #bbb;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            text-decoration: none;
+            border-radius: 40px;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(0,255,136,0.2);
+        }
+
+        .hero-stats {
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            gap: 48px;
+            margin-top: 40px;
         }
 
-        .nav-item {
+        .stat h3 {
+            font-size: 32px;
+            color: #00ff88;
+        }
+
+        .hero-image {
+            width: 260px;
+            height: 260px;
+            background: rgba(26, 26, 46, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-            color: #aaa;
-            text-decoration: none;
+            justify-content: center;
+            border: 1px solid rgba(0,255,136,0.4);
+            animation: float 4s ease-in-out infinite;
         }
 
-        .nav-item:hover, .nav-item.active {
-            background: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            border-left: 2px solid #00ff88;
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
         }
 
-        /* Right Content Area */
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 8px;
-        }
-
-        .content-area::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .section-card {
-            padding: 32px;
-            margin-bottom: 24px;
+        /* Sections */
+        section {
+            margin-bottom: 60px;
         }
 
         .section-title {
-            font-size: 28px;
-            margin-bottom: 24px;
-            color: #fff;
+            font-size: 32px;
+            margin-bottom: 32px;
+            text-align: center;
         }
 
         .section-title span {
             color: #00ff88;
         }
 
-        /* Stats */
-        .stats-grid {
-            display: flex;
-            gap: 40px;
-            margin-top: 24px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat h3 {
-            font-size: 36px;
-            color: #00ff88;
-        }
-
         /* Projects Grid */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
         }
 
         .project-card {
-            padding: 20px;
+            padding: 24px;
             cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px);
         }
 
         .project-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
+            font-size: 52px;
+            margin-bottom: 16px;
         }
 
         .project-card h3 {
             color: #00ff88;
-            margin-bottom: 8px;
-            font-size: 18px;
+            margin-bottom: 10px;
+            font-size: 20px;
         }
 
         .project-card p {
             color: #aaa;
-            font-size: 13px;
-            margin-bottom: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.4;
         }
 
         .tags {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .tag {
             background: rgba(0,255,136,0.1);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 11px;
             color: #00ff88;
         }
 
-        /* Contact Card */
+        /* School + Contact Cards */
+        .school-card, .contact-card {
+            padding: 36px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         .contact-email {
-            font-size: 18px;
+            font-size: 20px;
             color: #00ff88;
             word-break: break-all;
-            margin: 16px 0;
-        }
-
-        .contact-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 24px;
-            background: rgba(0,255,136,0.1);
-            border: 1px solid #00ff88;
-            border-radius: 30px;
-            color: #00ff88;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .contact-btn:hover {
-            background: #00ff88;
-            color: #0a0a0a;
+            margin: 20px 0;
         }
 
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 32px;
             color: #666;
-            font-size: 12px;
+            font-size: 13px;
+            border-top: 1px solid rgba(0,255,136,0.1);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 28px;
+            }
+            .hero-content h1 {
+                font-size: 38px;
+            }
+            .hero-stats {
+                justify-content: center;
+            }
+            .nav-links {
+                justify-content: center;
+                width: 100%;
+            }
+            nav {
+                justify-content: center;
+                text-align: center;
+            }
+            .logo {
+                width: 100%;
+                text-align: center;
+            }
+            .project-card:hover {
+                transform: none;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Intro Canvas: Spaceship to Moon -->
+    <canvas id="particleCanvas"></canvas>
+    <canvas id="lightningCanvas"></canvas>
     <canvas id="introCanvas"></canvas>
 
-    <!-- Main Site -->
     <div class="site-wrapper" id="siteWrapper">
-        <div class="desktop-layout">
-            <!-- Left Sidebar -->
-            <div class="sidebar">
-                <div class="profile-card glass-card">
-                    <div class="avatar">👨‍💻⚡</div>
-                    <div class="profile-name">Kenjie <span class="green-glow">Rookie Coder</span></div>
-                    <div class="profile-badge green-glow">⚡ ICT 11 ⚡</div>
+        <div class="container">
+            <nav class="glass-card">
+                <div class="logo">kenjie.dev</div>
+                <div class="nav-links">
+                    <a href="#home">Home</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#school">School</a>
+                    <a href="#contact">Contact</a>
                 </div>
-                <div class="nav-menu glass-card">
-                    <a href="#home" class="nav-item" data-section="home">🏠 Home</a>
-                    <a href="#projects" class="nav-item" data-section="projects">📁 Projects</a>
-                    <a href="#school" class="nav-item" data-section="school">🏫 School</a>
-                    <a href="#contact" class="nav-item" data-section="contact">📧 Contact</a>
-                </div>
-            </div>
+            </nav>
 
-            <!-- Right Content Area -->
-            <div class="content-area" id="contentArea">
-                <div id="home" class="section-card glass-card">
-                    <h2 class="section-title">About <span>Me</span></h2>
-                    <p style="font-size: 18px; margin-bottom: 16px;">16 years old | Born October 8, 2010</p>
-                    <p style="color: #aaa; margin-bottom: 24px;">Specializing in game codes, AI, websites, and creative digital experiences. Currently studying ICT 11 at Don Pablo Memorial Stand Alone Senior High School.</p>
-                    <div class="stats-grid">
-                        <div class="stat"><h3 class="green-glow">3</h3><p>Projects</p></div>
-                        <div class="stat"><h3 class="green-glow">ICT 11</h3><p>Current Strand</p></div>
-                        <div class="stat"><h3 class="green-glow">2026</h3><p>Graduating</p></div>
-                    </div>
-                </div>
-
-                <div id="projects" class="section-card glass-card">
-                    <h2 class="section-title">My <span>Projects</span></h2>
-                    <div class="projects-grid">
-                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
-                            <div class="project-icon">🧠</div>
-                            <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
-                            <p>Complete AI assistant with natural language processing and smart responses.</p>
-                            <div class="tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span></div>
-                        </div>
-                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
-                            <div class="project-icon">🛒</div>
-                            <h3>Acers Shop · E-commerce Store</h3>
-                            <p>Foam and plastic utensils store with cart system and WhatsApp checkout.</p>
-                            <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
-                        </div>
-                        <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
-                            <div class="project-icon">🎭</div>
-                            <h3>kinx · Prank Site</h3>
-                            <p>Romantic prank website with love.py script and fake interactions.</p>
-                            <div class="tags"><span class="tag">Python</span><span class="tag">Prank</span></div>
+            <section id="home">
+                <div class="hero glass-card">
+                    <div class="hero-content">
+                        <div class="badge green-glow">⚡ ROOKIE CODER ⚡</div>
+                        <h1>Kenjie <span class="green-glow">Rookie Coder</span></h1>
+                        <p>16 years old | Born October 8, 2010 | ICT 11 Student</p>
+                        <p>Specializing in game codes, AI, websites, and creative digital experiences.</p>
+                        <a href="#projects" class="btn">See My Work →</a>
+                        <div class="hero-stats">
+                            <div class="stat"><h3 class="green-glow">3</h3><p>Projects</p></div>
+                            <div class="stat"><h3 class="green-glow">ICT 11</h3><p>Current Strand</p></div>
+                            <div class="stat"><h3 class="green-glow">2026</h3><p>Graduating</p></div>
                         </div>
                     </div>
+                    <div class="hero-image">
+                        <div class="avatar-placeholder" style="font-size: 80px;">👨‍💻⚡</div>
+                    </div>
                 </div>
+            </section>
 
-                <div id="school" class="section-card glass-card">
-                    <h2 class="section-title">My <span>School</span></h2>
-                    <h3 style="color: #00ff88; margin-bottom: 12px;">🏫 Don Pablo Memorial Stand Alone Senior High School</h3>
+            <section id="projects">
+                <h2 class="section-title">My <span class="green-glow">Projects</span></h2>
+                <div class="projects-grid">
+                    <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/F.R.I.D.A.Y', '_blank')">
+                        <div class="project-icon">🧠</div>
+                        <h3>F.R.I.D.A.Y · Fully Fledged AI</h3>
+                        <p>Complete AI assistant with natural language processing, smart responses, and interactive chatbot capabilities. Built with Python and NLP.</p>
+                        <div class="tags"><span class="tag">AI</span><span class="tag">Python</span><span class="tag">NLP</span></div>
+                    </div>
+                    <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/Acers-shop', '_blank')">
+                        <div class="project-icon">🛒</div>
+                        <h3>Acers Shop · E-commerce Store</h3>
+                        <p>Foam and plastic utensils store with cart system, WhatsApp checkout, and fully responsive design. Built with HTML/CSS/JS.</p>
+                        <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
+                    </div>
+                    <div class="project-card glass-card" onclick="window.open('https://github.com/kinxkenjiemartinez62-cpu/kinx', '_blank')">
+                        <div class="project-icon">🎭</div>
+                        <h3>kinx · Prank Site</h3>
+                        <p>Romantic prank website with love.py script, music, and fake romantic interactions. Pure Python fun prank project.</p>
+                        <div class="tags"><span class="tag">Python</span><span class="tag">Prank</span><span class="tag">Multimedia</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="school">
+                <div class="school-card glass-card">
+                    <h3 style="color:#00ff88; margin-bottom: 12px;">🏫 Don Pablo Memorial Stand Alone Senior High School</h3>
                     <p>ICT 11 Student (Information and Communications Technology)</p>
                     <p class="green-glow" style="margin-top: 12px;">🎂 Born: October 8, 2010 · 16 years old</p>
                     <p style="margin-top: 16px;">⚡ Currently learning: Web Development, AI, Python Programming, Game Design</p>
                 </div>
+            </section>
 
-                <div id="contact" class="section-card glass-card">
-                    <h2 class="section-title">Let's <span>Connect</span></h2>
+            <section id="contact">
+                <div class="contact-card glass-card">
+                    <p style="margin-bottom: 16px;">📧 Email me directly:</p>
                     <div class="contact-email">kinxkenjiemartinez62@gmail.com</div>
-                    <a href="mailto:kinxkenjiemartinez62@gmail.com" class="contact-btn">✉️ Send Email</a>
+                    <a href="mailto:kinxkenjiemartinez62@gmail.com" class="btn" style="margin-top: 16px; display: inline-block;">✉️ Send Email</a>
                 </div>
+            </section>
 
-                <footer>
-                    <p>© 2025 Kenjie "Rookie Coder" · Don Pablo Memorial SHS · ICT 11 ⚡</p>
-                </footer>
-            </div>
+            <footer>
+                <p>© 2025 Kenjie "Rookie Coder" · Don Pablo Memorial SHS · ICT 11 ⚡</p>
+            </footer>
         </div>
     </div>
 
     <script>
-        // ========== SPACESHIP TO MOON INTRO ANIMATION ==========
+        // ========== CLEAN PARTICLE SYSTEM (subtle protons & atoms) ==========
+        const particleCanvas = document.getElementById('particleCanvas');
+        const pCtx = particleCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeParticleCanvas() {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.type = Math.random() > 0.6 ? 'proton' : 'atom';
+                this.x = Math.random() * particleCanvas.width;
+                this.y = Math.random() * particleCanvas.height;
+                this.size = this.type === 'atom' ? 12 : 5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.angle = Math.random() * Math.PI * 2;
+                this.orbitSpeed = 0.03;
+            }
+
+            draw() {
+                if (this.type === 'proton') {
+                    pCtx.beginPath();
+                    pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                    pCtx.fill();
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.7)';
+                    pCtx.font = `${this.size + 4}px Arial`;
+                    pCtx.fillText('+', this.x - 4, this.y + 5);
+                } else {
+                    // atom nucleus
+                    pCtx.beginPath();
+                    pCtx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                    pCtx.fillStyle = 'rgba(0, 255, 136, 0.4)';
+                    pCtx.fill();
+                    // orbiting electron
+                    let ex = this.x + Math.cos(this.angle) * 12;
+                    let ey = this.y + Math.sin(this.angle) * 12;
+                    pCtx.beginPath();
+                    pCtx.arc(ex, ey, 3, 0, Math.PI * 2);
+                    pCtx.fillStyle = '#00ff88';
+                    pCtx.fill();
+                    this.angle += this.orbitSpeed;
+                    // faint orbit line
+                    pCtx.beginPath();
+                    pCtx.ellipse(this.x, this.y, 12, 12, 0, 0, Math.PI * 2);
+                    pCtx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
+                    pCtx.stroke();
+                }
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < -50) this.x = particleCanvas.width + 50;
+                if (this.x > particleCanvas.width + 50) this.x = -50;
+                if (this.y < -50) this.y = particleCanvas.height + 50;
+                if (this.y > particleCanvas.height + 50) this.y = -50;
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 35; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            for (let p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeParticleCanvas();
+            initParticles();
+        });
+        resizeParticleCanvas();
+        initParticles();
+        animateParticles();
+
+        // ========== LIGHTNING (cleaner, less frequent) ==========
+        const lightningCanvas = document.getElementById('lightningCanvas');
+        const lCtx = lightningCanvas.getContext('2d');
+        let lightningActive = false;
+        let lightningPoints = [];
+
+        function resizeLightning() {
+            lightningCanvas.width = window.innerWidth;
+            lightningCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeLightning);
+        resizeLightning();
+
+        function triggerLightning(x, y) {
+            lightningActive = true;
+            lightningPoints = [];
+            let points = [{x: x, y: y}];
+            let cx = x, cy = y;
+            for (let i = 0; i < 10; i++) {
+                let nx = cx + (Math.random() - 0.5) * 35;
+                let ny = cy + (Math.random() - 0.5) * 25 + 12;
+                nx = Math.min(Math.max(nx, 0), lightningCanvas.width);
+                ny = Math.min(Math.max(ny, 0), lightningCanvas.height);
+                points.push({x: nx, y: ny});
+                cx = nx; cy = ny;
+            }
+            lightningPoints.push(points);
+            setTimeout(() => { lightningActive = false; }, 120);
+            drawLightningLoop();
+        }
+
+        function drawLightning() {
+            if (!lightningActive) {
+                lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
+                return;
+            }
+            lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
+            for (let branch of lightningPoints) {
+                lCtx.beginPath();
+                lCtx.moveTo(branch[0].x, branch[0].y);
+                for (let i = 1; i < branch.length; i++) lCtx.lineTo(branch[i].x, branch[i].y);
+                lCtx.strokeStyle = '#00ff88';
+                lCtx.lineWidth = 2.5;
+                lCtx.shadowBlur = 12;
+                lCtx.shadowColor = '#00ff88';
+                lCtx.stroke();
+                lCtx.beginPath();
+                lCtx.moveTo(branch[0].x, branch[0].y);
+                for (let i = 1; i < branch.length; i++) lCtx.lineTo(branch[i].x, branch[i].y);
+                lCtx.strokeStyle = 'white';
+                lCtx.lineWidth = 1;
+                lCtx.stroke();
+            }
+            lCtx.shadowBlur = 0;
+        }
+
+        function drawLightningLoop() {
+            if (lightningActive) {
+                drawLightning();
+                requestAnimationFrame(drawLightningLoop);
+            } else {
+                lCtx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
+            }
+        }
+
+        document.addEventListener('click', (e) => triggerLightning(e.clientX, e.clientY));
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.96) triggerLightning(e.clientX, e.clientY);
+        });
+
+        // ========== SPACESHIP INTRO (smoother) ==========
         const introCanvas = document.getElementById('introCanvas');
-        const ctxIntro = introCanvas.getContext('2d');
-        const siteWrapper = document.getElementById('siteWrapper');
-        
+        const iCtx = introCanvas.getContext('2d');
+        const siteWrapperDiv = document.getElementById('siteWrapper');
         let introActive = true;
-        let shipX, shipY;
+        let shipX, shipY, moonX, moonY, progress = 0, nameRevealed = false;
         let stars = [];
-        let moonX, moonY;
-        let animationId;
-        let progress = 0; // 0 to 1
-        let nameRevealed = false;
 
         function resizeIntro() {
             introCanvas.width = window.innerWidth;
             introCanvas.height = window.innerHeight;
-            initIntro();
-        }
-
-        function initIntro() {
             shipX = introCanvas.width / 2;
-            shipY = introCanvas.height - 100;
-            moonX = introCanvas.width - 120;
-            moonY = 120;
-            
+            shipY = introCanvas.height - 80;
+            moonX = introCanvas.width - 100;
+            moonY = 100;
             stars = [];
-            for (let i = 0; i < 200; i++) {
-                stars.push({
-                    x: Math.random() * introCanvas.width,
-                    y: Math.random() * introCanvas.height,
-                    radius: Math.random() * 2,
-                    alpha: Math.random() * 0.8 + 0.2
-                });
+            for (let i = 0; i < 150; i++) {
+                stars.push({ x: Math.random() * introCanvas.width, y: Math.random() * introCanvas.height, r: Math.random() * 1.5 });
             }
         }
 
-        function drawStars() {
-            for (let star of stars) {
-                ctxIntro.beginPath();
-                ctxIntro.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                ctxIntro.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-                ctxIntro.fill();
-            }
-        }
-
-        function drawMoon() {
-            // Moon glow
-            ctxIntro.shadowBlur = 30;
-            ctxIntro.shadowColor = '#00ff88';
-            ctxIntro.beginPath();
-            ctxIntro.arc(moonX, moonY, 50, 0, Math.PI * 2);
-            ctxIntro.fillStyle = '#aaddff';
-            ctxIntro.fill();
-            ctxIntro.shadowBlur = 0;
-            // Craters
-            ctxIntro.fillStyle = '#88aacc';
-            ctxIntro.beginPath();
-            ctxIntro.arc(moonX - 15, moonY - 10, 8, 0, Math.PI * 2);
-            ctxIntro.fill();
-            ctxIntro.beginPath();
-            ctxIntro.arc(moonX + 12, moonY + 5, 6, 0, Math.PI * 2);
-            ctxIntro.fill();
-            ctxIntro.beginPath();
-            ctxIntro.arc(moonX - 5, moonY + 15, 5, 0, Math.PI * 2);
-            ctxIntro.fill();
-            
-            // Moon text
-            ctxIntro.fillStyle = '#00ff88';
-            ctxIntro.font = 'bold 20px Inter';
-            ctxIntro.shadowBlur = 10;
-            ctxIntro.fillText("🌙 MOON", moonX - 40, moonY - 20);
-            ctxIntro.shadowBlur = 0;
-        }
-
-        function drawSpaceship(x, y, angle) {
-            ctxIntro.save();
-            ctxIntro.translate(x, y);
-            ctxIntro.rotate(angle);
-            // Ship body
-            ctxIntro.fillStyle = '#888';
-            ctxIntro.beginPath();
-            ctxIntro.moveTo(0, -20);
-            ctxIntro.lineTo(15, 15);
-            ctxIntro.lineTo(8, 10);
-            ctxIntro.lineTo(8, 20);
-            ctxIntro.lineTo(0, 25);
-            ctxIntro.lineTo(-8, 20);
-            ctxIntro.lineTo(-8, 10);
-            ctxIntro.lineTo(-15, 15);
-            ctxIntro.closePath();
-            ctxIntro.fill();
-            ctxIntro.fillStyle = '#ff6600';
-            ctxIntro.beginPath();
-            ctxIntro.moveTo(0, -20);
-            ctxIntro.lineTo(5, 0);
-            ctxIntro.lineTo(-5, 0);
-            ctxIntro.closePath();
-            ctxIntro.fill();
-            // Engine fire
-            ctxIntro.fillStyle = '#ff4400';
-            ctxIntro.beginPath();
-            ctxIntro.moveTo(0, 25);
-            ctxIntro.lineTo(6, 35);
-            ctxIntro.lineTo(0, 32);
-            ctxIntro.lineTo(-6, 35);
-            ctxIntro.closePath();
-            ctxIntro.fill();
-            ctxIntro.restore();
-        }
-
-        function animateIntro() {
+        function drawIntro() {
             if (!introActive) return;
-            
-            ctxIntro.clearRect(0, 0, introCanvas.width, introCanvas.height);
-            
-            // Background gradient
-            let grad = ctxIntro.createLinearGradient(0, 0, 0, introCanvas.height);
+            iCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
+            let grad = iCtx.createLinearGradient(0, 0, 0, introCanvas.height);
             grad.addColorStop(0, '#030318');
             grad.addColorStop(1, '#0a0a2a');
-            ctxIntro.fillStyle = grad;
-            ctxIntro.fillRect(0, 0, introCanvas.width, introCanvas.height);
-            
-            drawStars();
-            drawMoon();
-            
-            // Progress animation (increase over time)
-            if (progress < 1) {
-                progress += 0.002;
+            iCtx.fillStyle = grad;
+            iCtx.fillRect(0, 0, introCanvas.width, introCanvas.height);
+            for (let s of stars) {
+                iCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.5 + 0.3})`;
+                iCtx.beginPath();
+                iCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                iCtx.fill();
             }
-            
-            // Ship position interpolation
-            let targetX = moonX;
-            let targetY = moonY;
-            
-            let easeProgress = Math.pow(progress, 0.7);
-            shipX = shipX + (targetX - shipX) * 0.02;
-            shipY = shipY + (targetY - shipY) * 0.02;
-            
-            // Angle towards moon
-            let dx = moonX - shipX;
-            let dy = moonY - shipY;
-            let angle = Math.atan2(dy, dx);
-            
-            drawSpaceship(shipX, shipY, angle);
-            
-            // Trail particles
-            for (let i = 0; i < 3; i++) {
-                ctxIntro.fillStyle = `rgba(255, 100, 0, ${Math.random() * 0.5})`;
-                ctxIntro.beginPath();
-                ctxIntro.arc(shipX - Math.cos(angle) * 20 + (Math.random() - 0.5) * 10, 
-                            shipY - Math.sin(angle) * 20 + (Math.random() - 0.5) * 10, 
-                            Math.random() * 4, 0, Math.PI * 2);
-                ctxIntro.fill();
+            // moon
+            iCtx.shadowBlur = 20;
+            iCtx.shadowColor = '#00ff88';
+            iCtx.beginPath();
+            iCtx.arc(moonX, moonY, 45, 0, Math.PI * 2);
+            iCtx.fillStyle = '#bbddff';
+            iCtx.fill();
+            iCtx.shadowBlur = 0;
+            iCtx.fillStyle = '#88aacc';
+            iCtx.beginPath();
+            iCtx.arc(moonX - 12, moonY - 8, 6, 0, Math.PI * 2);
+            iCtx.fill();
+            iCtx.beginPath();
+            iCtx.arc(moonX + 10, moonY + 5, 5, 0, Math.PI * 2);
+            iCtx.fill();
+            // ship movement
+            if (progress < 1) progress += 0.002;
+            shipX += (moonX - shipX) * 0.02;
+            shipY += (moonY - shipY) * 0.02;
+            let angle = Math.atan2(moonY - shipY, moonX - shipX);
+            iCtx.save();
+            iCtx.translate(shipX, shipY);
+            iCtx.rotate(angle);
+            iCtx.fillStyle = '#aaa';
+            iCtx.beginPath();
+            iCtx.moveTo(0, -18);
+            iCtx.lineTo(14, 12);
+            iCtx.lineTo(7, 8);
+            iCtx.lineTo(7, 18);
+            iCtx.lineTo(0, 22);
+            iCtx.lineTo(-7, 18);
+            iCtx.lineTo(-7, 8);
+            iCtx.lineTo(-14, 12);
+            iCtx.fill();
+            iCtx.fillStyle = '#ff6600';
+            iCtx.beginPath();
+            iCtx.moveTo(0, -18);
+            iCtx.lineTo(4, 0);
+            iCtx.lineTo(-4, 0);
+            iCtx.fill();
+            iCtx.fillStyle = '#ff4400';
+            iCtx.beginPath();
+            iCtx.moveTo(0, 22);
+            iCtx.lineTo(5, 32);
+            iCtx.lineTo(0, 28);
+            iCtx.lineTo(-5, 32);
+            iCtx.fill();
+            iCtx.restore();
+            // exhaust trail
+            for (let i=0;i<2;i++) {
+                iCtx.fillStyle = `rgba(255,100,0,${Math.random()*0.5})`;
+                iCtx.beginPath();
+                iCtx.arc(shipX - Math.cos(angle)*18 + (Math.random()-0.5)*8, shipY - Math.sin(angle)*18 + (Math.random()-0.5)*8, Math.random()*4, 0, Math.PI*2);
+                iCtx.fill();
             }
-            
-            // When ship reaches moon
-            let distToMoon = Math.hypot(shipX - moonX, shipY - moonY);
-            if (distToMoon < 50 && !nameRevealed) {
+            let dist = Math.hypot(shipX - moonX, shipY - moonY);
+            if (dist < 45 && !nameRevealed) {
                 nameRevealed = true;
-                // Draw name on moon
-                ctxIntro.fillStyle = '#00ff88';
-                ctxIntro.font = 'bold 32px Inter';
-                ctxIntro.shadowBlur = 15;
-                ctxIntro.shadowColor = '#00ff88';
-                ctxIntro.fillText("KENJIE", moonX - 70, moonY + 60);
-                ctxIntro.font = '20px Inter';
-                ctxIntro.fillStyle = '#ccc';
-                ctxIntro.fillText("ROOKIE CODER", moonX - 75, moonY + 95);
-                ctxIntro.shadowBlur = 0;
-                
                 setTimeout(() => {
                     introActive = false;
                     introCanvas.style.opacity = '0';
-                    introCanvas.style.transition = 'opacity 1s';
-                    siteWrapper.style.display = 'block';
-                    setTimeout(() => {
-                        introCanvas.style.display = 'none';
-                    }, 1000);
-                }, 2000);
+                    introCanvas.style.transition = 'opacity 1.2s';
+                    siteWrapperDiv.style.display = 'block';
+                    setTimeout(() => { introCanvas.style.display = 'none'; }, 1300);
+                }, 1800);
             }
-            
-            // Draw name after landing
             if (nameRevealed) {
-                ctxIntro.fillStyle = '#00ff88';
-                ctxIntro.font = 'bold 32px Inter';
-                ctxIntro.shadowBlur = 15;
-                ctxIntro.fillText("KENJIE", moonX - 70, moonY + 60);
-                ctxIntro.font = '20px Inter';
-                ctxIntro.fillStyle = '#ccc';
-                ctxIntro.fillText("ROOKIE CODER", moonX - 75, moonY + 95);
+                iCtx.font = 'bold 34px Inter';
+                iCtx.fillStyle = '#00ff88';
+                iCtx.shadowBlur = 12;
+                iCtx.fillText("KENJIE", moonX - 70, moonY + 55);
+                iCtx.font = '18px Inter';
+                iCtx.fillStyle = '#ddd';
+                iCtx.fillText("ROOKIE CODER", moonX - 70, moonY + 85);
+                iCtx.shadowBlur = 0;
             }
-            
-            animationId = requestAnimationFrame(animateIntro);
+            requestAnimationFrame(drawIntro);
         }
 
-        window.addEventListener('resize', () => {
-            if (introActive) {
-                resizeIntro();
-            }
-        });
-
+        window.addEventListener('resize', resizeIntro);
         resizeIntro();
-        animateIntro();
+        drawIntro();
 
-        // ========== DESKTOP NAVIGATION: CHANGE CONTENT WITHOUT SCROLL ==========
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = {
-            home: document.getElementById('home'),
-            projects: document.getElementById('projects'),
-            school: document.getElementById('school'),
-            contact: document.getElementById('contact')
-        };
-
-        function showSection(sectionId) {
-            // Hide all sections
-            Object.values(sections).forEach(section => {
-                if (section) section.style.display = 'none';
-            });
-            // Show selected
-            if (sections[sectionId]) {
-                sections[sectionId].style.display = 'block';
-            }
-            // Update active nav
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('data-section') === sectionId) {
-                    item.classList.add('active');
-                }
-            });
-        }
-
-        // Initially show home
-        sections.projects.style.display = 'none';
-        sections.school.style.display = 'none';
-        sections.contact.style.display = 'none';
-        sections.home.style.display = 'block';
-
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
+        // smooth scroll for anchor links
+        document.querySelectorAll('.nav-links a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
-                const sectionId = item.getAttribute('data-section');
-                showSection(sectionId);
+                const targetId = this.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
             });
         });
-
-        // No particles or lightning to keep clean
     </script>
 </body>
 </html>
