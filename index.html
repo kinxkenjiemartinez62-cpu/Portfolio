@@ -532,15 +532,18 @@
         document.addEventListener('click', (e) => triggerLightning(e.clientX, e.clientY));
         document.addEventListener('mousemove', (e) => { if (Math.random() > 0.96) triggerLightning(e.clientX, e.clientY); });
 
-        // ========== SOLAR SYSTEM WITH ACTUAL ALIGNMENT ==========
+        // ========== SOLAR SYSTEM - VERTICAL ALIGNMENT (UP / TOP) ==========
         const introCanvas = document.getElementById('introCanvas');
         const iCtx = introCanvas.getContext('2d');
         const siteWrapperDiv = document.getElementById('siteWrapper');
         let introActive = true;
-        let alignmentProgress = 0;
         let starsField = [];
         let siteRevealed = false;
         let animationFrameId = null;
+
+        // Target angle for vertical alignment: -PI/2 (straight up / 12 o'clock position)
+        // In canvas, angle 0 = right, -PI/2 = up, PI/2 = down
+        const TARGET_ANGLE = -Math.PI / 2;  // Straight UP
 
         const planets = [
             { name: 'Mercury', radius: 6, distance: 80, speed: 0.025, color: '#c2b280', angle: 0 },
@@ -595,33 +598,28 @@
                 iCtx.stroke();
             }
             
-            // Update angles - gradually move all planets toward 0 degrees (right side)
-            // This creates the alignment effect: all planets move to the same angle
-            let aligned = false;
-            
+            // Move all planets toward TARGET_ANGLE (straight UP)
             for (let p of planets) {
-                // Calculate target angle (0 = right side, aligned)
-                let targetAngle = 0;
-                let diff = targetAngle - p.angle;
+                let diff = TARGET_ANGLE - p.angle;
                 // Normalize diff to shortest direction
-                if (diff > Math.PI) diff -= Math.PI * 2;
-                if (diff < -Math.PI) diff += Math.PI * 2;
+                while (diff > Math.PI) diff -= Math.PI * 2;
+                while (diff < -Math.PI) diff += Math.PI * 2;
                 
                 // Move angle toward target
-                let step = 0.02 * (1 - alignmentProgress * 0.5);
+                let step = 0.025;
                 if (Math.abs(diff) < step) {
-                    p.angle = targetAngle;
+                    p.angle = TARGET_ANGLE;
                 } else {
                     p.angle += diff > 0 ? step : -step;
                 }
                 
                 // Keep angle normalized
                 if (p.angle > Math.PI * 2) p.angle -= Math.PI * 2;
-                if (p.angle < 0) p.angle += Math.PI * 2;
+                if (p.angle < -Math.PI * 2) p.angle += Math.PI * 2;
             }
             
-            // Check if all planets are aligned (all angles very close to 0)
-            let allAligned = planets.every(p => Math.abs(p.angle) < 0.05 || Math.abs(p.angle - Math.PI * 2) < 0.05);
+            // Check if all planets are vertically aligned (all angles very close to TARGET_ANGLE)
+            let allAligned = planets.every(p => Math.abs(p.angle - TARGET_ANGLE) < 0.05);
             
             // Draw planets
             for (let p of planets) {
@@ -644,27 +642,27 @@
             }
             iCtx.shadowBlur = 0;
             
-            // Update progress bar for visual feedback
-            if (!allAligned) {
-                // Calculate alignment percentage based on how close planets are to 0 angle
-                let totalDiff = 0;
-                for (let p of planets) {
-                    let diff = Math.abs(p.angle);
-                    if (diff > Math.PI) diff = Math.PI * 2 - diff;
-                    totalDiff += diff;
-                }
-                let maxDiff = planets.length * Math.PI;
-                let percent = Math.max(0, Math.min(100, Math.floor((1 - totalDiff / maxDiff) * 100)));
-                iCtx.font = '14px monospace';
-                iCtx.fillStyle = '#00ff88';
-                iCtx.shadowBlur = 0;
-                iCtx.fillText(`🌀 PLANETARY ALIGNMENT: ${percent}% 🌀`, cx - 130, cy - 60);
-            } else {
-                iCtx.font = 'bold 24px monospace';
-                iCtx.fillStyle = '#00ff88';
-                iCtx.shadowBlur = 10;
-                iCtx.fillText('✨ PLANETS ALIGNED ✨', cx - 100, cy - 60);
+            // Draw alignment indicator (vertical line showing target)
+            iCtx.beginPath();
+            iCtx.moveTo(cx, cy - 50);
+            iCtx.lineTo(cx, cy - 480);
+            iCtx.strokeStyle = 'rgba(0, 255, 136, 0.3)';
+            iCtx.setLineDash([5, 10]);
+            iCtx.stroke();
+            iCtx.setLineDash([]);
+            
+            // Calculate alignment percentage
+            let totalDiff = 0;
+            for (let p of planets) {
+                let diff = Math.abs(p.angle - TARGET_ANGLE);
+                totalDiff += diff;
             }
+            let maxDiff = planets.length * Math.PI;
+            let percent = Math.max(0, Math.min(100, Math.floor((1 - totalDiff / maxDiff) * 100)));
+            
+            iCtx.font = '14px monospace';
+            iCtx.fillStyle = '#00ff88';
+            iCtx.fillText(`⬆️ VERTICAL ALIGNMENT: ${percent}% ⬆️`, cx - 110, cy - 50);
             
             // When aligned, show name and reveal site
             if (allAligned && !siteRevealed) {
